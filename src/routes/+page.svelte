@@ -21,7 +21,7 @@
       id="age"
       bind:value={age}
       on:input={handleAgeChange}
-      class="border rounded px-2 py-1 bg-slate-800"
+      class="border rounded px-2 py-1 bg-black/70 border-white/20"
       min="0"
       max="90"
     />

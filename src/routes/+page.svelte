@@ -9,8 +9,7 @@
 
 	$: monthsLived = age * 12;
 
-	const isProduction = import.meta.env.PUBLIC_NODE_ENV === 'production';
-	console.log('isProduction', import.meta.env.PUBLIC_NODE_ENV);
+	const isProduction = import.meta.env.PROD;
 	let showModal = isProduction;
 </script>
 

@@ -1,12 +1,17 @@
 <script lang="ts">
 	import Slider from '../components/Slider.svelte';
+	import Modal from '../components/Modal.svelte';
 
 	let age: number = 20;
-	const totalMonths: number = 1080; // 90 years * 12 months
-	const monthsPerRow: number = 36; // 3 years per row
-	const rows: number = 30; // 90 years / 3 years per row
+	const totalMonths: number = 1080;
+	const monthsPerRow: number = 36;
+	const rows: number = 30;
 
 	$: monthsLived = age * 12;
+
+	const isProduction = import.meta.env.PUBLIC_NODE_ENV === 'production';
+	console.log('isProduction', import.meta.env.PUBLIC_NODE_ENV);
+	let showModal = isProduction;
 </script>
 
 <div class="mx-auto flex max-w-6xl flex-col items-center p-4">
@@ -36,4 +41,6 @@
 		<p>Months lived: {monthsLived}</p>
 		<p>Months remaining: {totalMonths - monthsLived}</p>
 	</div>
+
+	<Modal bind:show={showModal} />
 </div>

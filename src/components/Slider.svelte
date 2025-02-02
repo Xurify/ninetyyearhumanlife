@@ -44,7 +44,7 @@
 		{label}
 	</label>
 	<div class="w-3/5">
-		<div class="flex flex-grow items-center gap-2">
+		<div class="flex grow items-center gap-2">
 			<div
 				class="dark:bg-dark-supertransparent flex h-7 w-12 items-center justify-center rounded-md border border-white/20 bg-white/5 text-[13px]"
 			>
@@ -72,7 +72,7 @@
 						/>
 					</div>
 					<div
-						class="absolute block h-7 w-3 rounded-[3px] bg-[#bdbdbd] outline-none transition-[height] group-hover:bg-[#ededed] dark:bg-[#dcdcdc]"
+						class="absolute block h-7 w-3 rounded-[3px] bg-[#bdbdbd] outline-hidden transition-[height] group-hover:bg-[#ededed] dark:bg-[#dcdcdc]"
 						style="left: {thumbPosition}; transform: translateX(-50%)"
 						role="slider"
 						aria-valuemin={min}

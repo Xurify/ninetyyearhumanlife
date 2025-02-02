@@ -26,7 +26,7 @@
 				{#each Array(monthsPerRow) as _, colIndex}
 					{@const monthIndex = rowIndex * monthsPerRow + colIndex}
 					<div
-						class="h-2 w-2 rounded-full"
+						class="h-1 w-1 sm:h-2 sm:w-2 md:h-3 md:w-3 rounded-full"
 						class:bg-red-500={monthIndex < monthsLived}
 						class:bg-blue-500={monthIndex >= monthsLived}
 					></div>

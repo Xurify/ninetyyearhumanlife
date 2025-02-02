@@ -60,7 +60,7 @@
 				aria-valuenow={value}
 				aria-label={label}
 				tabindex="0"
-				id={name}
+				id={label}
 			>
 				<div class="relative flex h-2 w-full items-center">
 					<div
@@ -79,6 +79,7 @@
 						aria-valuemax={max}
 						aria-valuenow={value}
 						tabindex="0"
+						aria-label={label}
 					/>
 				</div>
 			</div>

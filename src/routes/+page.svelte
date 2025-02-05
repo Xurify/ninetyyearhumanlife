@@ -20,6 +20,7 @@
 </script>
 
 <div class="mx-auto flex max-w-6xl flex-col items-center p-4">
+	<div class="text-3xl text-red-500 font-bold">(🚧 WORK IN PROGRESS)</div> 
 	<h1 class="mb-4 text-center text-2xl font-bold">A 90-Year Human Life in Months</h1>
 
 	<div class="mb-6 w-full max-w-md rounded-lg border border-white/20 bg-[#141612] p-4">

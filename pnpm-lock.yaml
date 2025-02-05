@@ -8,6 +8,9 @@ dependencies:
   '@sveltejs/adapter-vercel':
     specifier: ^5.5.3
     version: 5.5.3(@sveltejs/kit@2.5.28)
+  '@vercel/analytics':
+    specifier: ^1.4.1
+    version: 1.4.1(@sveltejs/kit@2.5.28)(svelte@4.2.19)
 
 devDependencies:
   '@sveltejs/adapter-auto':
@@ -1139,6 +1142,36 @@ packages:
       '@typescript-eslint/types': 8.6.0
       eslint-visitor-keys: 3.4.3
     dev: true
+
+  /@vercel/analytics@1.4.1(@sveltejs/kit@2.5.28)(svelte@4.2.19):
+    resolution: {integrity: sha512-ekpL4ReX2TH3LnrRZTUKjHHNpNy9S1I7QmS+g/RQXoSUQ8ienzosuX7T9djZ/s8zPhBx1mpHP/Rw5875N+zQIQ==}
+    peerDependencies:
+      '@remix-run/react': ^2
+      '@sveltejs/kit': ^1 || ^2
+      next: '>= 13'
+      react: ^18 || ^19 || ^19.0.0-rc
+      svelte: '>= 4'
+      vue: ^3
+      vue-router: ^4
+    peerDependenciesMeta:
+      '@remix-run/react':
+        optional: true
+      '@sveltejs/kit':
+        optional: true
+      next:
+        optional: true
+      react:
+        optional: true
+      svelte:
+        optional: true
+      vue:
+        optional: true
+      vue-router:
+        optional: true
+    dependencies:
+      '@sveltejs/kit': 2.5.28(@sveltejs/vite-plugin-svelte@3.1.2)(svelte@4.2.19)(vite@5.4.6)
+      svelte: 4.2.19
+    dev: false
 
   /@vercel/nft@0.29.1:
     resolution: {integrity: sha512-6239JJM1V9b3OjvZIjbe+47/hGxMr44FEzlbTErrqzebCaoKAHK+yvahn3gdNacybDUbTxVF8Zuh0vqaeM8aKQ==}

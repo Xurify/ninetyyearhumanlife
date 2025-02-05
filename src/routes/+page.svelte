@@ -1,6 +1,5 @@
 <script lang="ts">
 	import Slider from '../components/Slider.svelte';
-	import Modal from '../components/Modal.svelte';
 
 	let age: number = 20;
 	const totalMonths: number = 1080;
@@ -10,9 +9,6 @@
 	$: monthsLived = age * 12;
 	let selectedMonthIndex: number | null = null;
 	$: selectedMonthIndex = selectedMonthIndex;
-
-	const isProduction = import.meta.env.PROD;
-	let showModal = isProduction;
 
 	const handleClick = (monthIndex: number) => {
 		if (monthIndex === selectedMonthIndex) {
@@ -68,6 +64,4 @@
 		<p>Months lived: {monthsLived}</p>
 		<p>Months remaining: {totalMonths - monthsLived}</p>
 	</div>
-
-	<Modal bind:show={showModal} />
 </div>

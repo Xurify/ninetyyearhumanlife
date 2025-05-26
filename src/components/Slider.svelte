@@ -46,7 +46,7 @@
 	<div class="w-3/5">
 		<div class="flex grow items-center gap-2">
 			<div
-				class="dark:bg-dark-supertransparent flex h-7 w-12 items-center justify-center rounded-md border border-white/20 bg-white/5 text-[13px]"
+				class="dark:bg-dark-supertransparent flex h-7 w-12 items-center justify-center rounded-md border border-white/20 bg-white/5 text-[13px] mr-1"
 			>
 				{value}
 			</div>

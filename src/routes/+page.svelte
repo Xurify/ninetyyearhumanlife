@@ -31,9 +31,9 @@
 	<h1 class="text-center text-2xl font-bold lg:text-3xl">
 		A 90-Year Human Life in Months
 	</h1>
-	<ControlPanel bind:age {selectedMonthIndex} />
+	<ControlPanel bind:age {selectedMonthIndex} bind:showAdvanced />
 	<LifeGrid {monthsLived} {selectedMonthIndex} {handleClick} />
-	<LifeStats {monthsLived} bind:showAdvanced />
+	<LifeStats {monthsLived} />
 	{#if showAdvanced}
 		<TimePerception
 			timePerceptionData={selectedTimePerception}

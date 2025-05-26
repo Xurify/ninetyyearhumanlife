@@ -11,13 +11,12 @@
 
 	$: monthsLived = age * 12;
 	let selectedMonthIndex: number | null = null;
-	$: selectedMonthIndex = selectedMonthIndex;
+	let showAdvanced: boolean = false;
 
 	$: currentTimePerception = getTimePerceptionForAge(age);
-	$: selectedTimePerception =
-		selectedMonthIndex !== null
-			? getTimePerceptionForMonth(selectedMonthIndex)
-			: currentTimePerception;
+	$: selectedTimePerception = selectedMonthIndex !== null
+		? getTimePerceptionForMonth(selectedMonthIndex)
+		: currentTimePerception;
 
 	const handleClick = (monthIndex: number) => {
 		if (monthIndex === selectedMonthIndex) {
@@ -34,12 +33,14 @@
 	</h1>
 	<ControlPanel bind:age {selectedMonthIndex} />
 	<LifeGrid {monthsLived} {selectedMonthIndex} {handleClick} />
-	<LifeStats {monthsLived} />
-	<TimePerception
-		timePerceptionData={selectedTimePerception}
-		currentAge={age}
-		selectedMonth={selectedMonthIndex}
-	/>
-	<EducationalSection />
-	<AllReferences />
+	<LifeStats {monthsLived} bind:showAdvanced />
+	{#if showAdvanced}
+		<TimePerception
+			timePerceptionData={selectedTimePerception}
+			currentAge={age}
+			selectedMonth={selectedMonthIndex}
+		/>
+		<EducationalSection />
+		<AllReferences />
+	{/if}
 </div>

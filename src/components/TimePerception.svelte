@@ -9,7 +9,6 @@
 
 	$: selectedAge = selectedMonth !== null ? Math.floor(selectedMonth / 12) : currentAge;
 	$: displayData = timePerceptionData;
-	$: isSelectedDifferent = selectedMonth !== null && selectedAge !== currentAge;
 	$: currentReferences = displayData ? getReferencesForData(displayData) : [];
 
 	function getTimeIntensity(ageRange: string): number {
@@ -36,19 +35,13 @@
 		<div class="mb-4 flex items-center justify-between">
 			<h2 class="text-xl font-bold text-white">Time Perception</h2>
 			<div class="flex items-center gap-3">
-				{#if isSelectedDifferent}
-					<div class="text-sm text-yellow-400">
-						Comparing: Age {currentAge} → Age {selectedAge}
-					</div>
-				{:else}
-					<div class="text-sm text-gray-400">
-						{#if selectedMonth !== null}
-							Month {selectedMonth + 1} (Age {selectedAge})
-						{:else}
-							Age {currentAge}
-						{/if}
-					</div>
-				{/if}
+				<div class="text-sm text-gray-400">
+					{#if selectedMonth !== null}
+						Month {selectedMonth + 1} (Age {selectedAge})
+					{:else}
+						Age {currentAge}
+					{/if}
+				</div>
 				<!-- Time Speed Indicator -->
 				<div class="flex items-center gap-1">
 					<span class="text-xs text-gray-500">Speed:</span>
@@ -113,21 +106,6 @@
 
 			<!-- References -->
 			<References references={currentReferences} />
-
-			{#if isSelectedDifferent}
-				<!-- Comparison Note -->
-				<div class="rounded-md bg-yellow-500/10 border border-yellow-500/20 p-3">
-					<h3 class="mb-2 text-sm font-semibold text-yellow-400">Age Comparison:</h3>
-					<p class="text-sm text-gray-300">
-						You're comparing how time feels at age {currentAge} versus age {selectedAge}.
-						{#if selectedAge > currentAge}
-							Time will likely feel faster as you get older.
-						{:else}
-							Time felt slower when you were younger.
-						{/if}
-					</p>
-				</div>
-			{/if}
 
 			<!-- Tips -->
 			<div class="rounded-md bg-blue-500/10 border border-blue-500/20 p-3">

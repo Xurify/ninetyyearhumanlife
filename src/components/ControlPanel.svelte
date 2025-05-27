@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Slider from './Slider.svelte';
+	import Switch from './Switch.svelte';
 
 	export let age: number = 20;
 	export let selectedMonthIndex: number | null = null;
@@ -11,12 +12,13 @@
 </script>
 
 <div class="flex flex-col gap-4">
-	<button
-		on:click={toggleAdvanced}
-		class="text-sm text-blue-400 underline transition-colors hover:text-blue-300"
-	>
-		{showAdvanced ? 'Hide Details' : 'Show Details'}
-	</button>
+	<div class="flex items-center">
+		<Switch 
+			label="Advanced" 
+			bind:checked={showAdvanced} 
+			name="show-details" 
+		/>
+	</div>
 
 	<div class="flex flex-col items-center gap-4 lg:flex-row lg:justify-center lg:gap-6">
 		<div class="w-full max-w-md rounded-lg border border-white/20 bg-[#141612] p-4 lg:w-60">

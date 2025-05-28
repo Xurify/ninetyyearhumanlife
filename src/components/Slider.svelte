@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	
 	export let label: string = '';
 	export let value: number = 50;
 	export let name: string = '';
@@ -7,10 +9,53 @@
 
 	let isDragging = false;
 	let sliderContainer: HTMLDivElement;
+	let previousValue = value;
+	let lastSoundTime = 0;
+	let audioContext: AudioContext;
+	let audioBuffer: AudioBuffer;
+	
+	// Initialize audio context and load sound
+	onMount(async () => {
+		try {
+			// Create audio context
+			audioContext = new (window.AudioContext || window.webkitAudioContext)();
+			
+			// Load the audio file
+			const response = await fetch('/assets/STREAMING-digital-button-click-pop-davies-aguirre-1-1-00-00.mp3');
+			const arrayBuffer = await response.arrayBuffer();
+			audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+		} catch (error) {
+			console.error('Error initializing audio:', error);
+		}
+	});
+
+	function playSound() {
+		if (!audioContext || !audioBuffer) return;
+		
+		const now = Date.now();
+		if (now - lastSoundTime > 30) {
+			try {
+				const source = audioContext.createBufferSource();
+				source.buffer = audioBuffer;
+				
+				const gainNode = audioContext.createGain();
+				gainNode.gain.value = 0.3; // Set volume to 30%
+				
+				source.connect(gainNode);
+				gainNode.connect(audioContext.destination);
+
+				source.start(0);
+				lastSoundTime = now;
+			} catch (error) {
+				console.error('Error playing sound:', error);
+			}
+		}
+	}
 
 	function handleMouseDown(event: MouseEvent) {
 		isDragging = true;
 		updateValue(event);
+		playSound();
 		window.addEventListener('mousemove', handleMouseMove);
 		window.addEventListener('mouseup', handleMouseUp);
 	}
@@ -31,7 +76,17 @@
 		const rect = sliderContainer.getBoundingClientRect();
 		const x = Math.max(0, Math.min(event.clientX - rect.left, rect.width));
 		const percentage = x / rect.width;
-		value = Math.round(min + percentage * (max - min));
+		const newValue = Math.round(min + percentage * (max - min));
+		
+		if (newValue !== value) {
+			value = newValue;
+			playSound();
+		}
+	}
+
+	$: if (value !== previousValue && !isDragging) {
+		playSound();
+		previousValue = value;
 	}
 
 	$: percentage = ((value - min) / (max - min)) * 100;

@@ -11,7 +11,7 @@
 	};
 </script>
 
-<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-4 w-full">
 	<div class="flex items-center justify-center">
 		<Switch 
 			label="Advanced" 

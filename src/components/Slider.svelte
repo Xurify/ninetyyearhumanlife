@@ -34,6 +34,41 @@
 		window.removeEventListener('mouseup', handleMouseUp);
 	}
 
+	function handleTouchStart(event: TouchEvent) {
+		isDragging = true;
+		updateValueFromTouch(event);
+		playSound();
+		window.addEventListener('touchmove', handleTouchMove);
+		window.addEventListener('touchend', handleTouchEnd);
+	}
+
+	function handleTouchMove(event: TouchEvent) {
+		if (isDragging) {
+			updateValueFromTouch(event);
+		}
+	}
+
+	function handleTouchEnd() {
+		isDragging = false;
+		window.removeEventListener('touchmove', handleTouchMove);
+		window.removeEventListener('touchend', handleTouchEnd);
+	}
+
+	function updateValueFromTouch(event: TouchEvent) {
+		if (event.touches.length > 0) {
+			const touch = event.touches[0];
+			const rect = sliderContainer.getBoundingClientRect();
+			const x = Math.max(0, Math.min(touch.clientX - rect.left, rect.width));
+			const percentage = x / rect.width;
+			const newValue = Math.round(min + percentage * (max - min));
+			
+			if (newValue !== value) {
+				value = newValue;
+				playSound();
+			}
+		}
+	}
+
 	function updateValue(event: MouseEvent) {
 		const rect = sliderContainer.getBoundingClientRect();
 		const x = Math.max(0, Math.min(event.clientX - rect.left, rect.width));
@@ -71,6 +106,7 @@
 				class="group w-full touch-none select-none transition-[margin] hover:cursor-grab active:cursor-grabbing"
 				bind:this={sliderContainer}
 				on:mousedown={handleMouseDown}
+				on:touchstart={handleTouchStart}
 				role="slider"
 				aria-valuemin={min}
 				aria-valuemax={max}

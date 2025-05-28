@@ -13,15 +13,12 @@
 	let lastSoundTime = 0;
 	let audioContext: AudioContext;
 	let audioBuffer: AudioBuffer;
-	
-	// Initialize audio context and load sound
+
 	onMount(async () => {
 		try {
-			// Create audio context
 			audioContext = new (window.AudioContext || window.webkitAudioContext)();
 			
-			// Load the audio file
-			const response = await fetch('/assets/STREAMING-digital-button-click-pop-davies-aguirre-1-1-00-00.mp3');
+			const response = await fetch('/assets/digital-pop.mp3');
 			const arrayBuffer = await response.arrayBuffer();
 			audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
 		} catch (error) {
@@ -39,7 +36,7 @@
 				source.buffer = audioBuffer;
 				
 				const gainNode = audioContext.createGain();
-				gainNode.gain.value = 0.3; // Set volume to 30%
+				gainNode.gain.value = 0.3;
 				
 				source.connect(gainNode);
 				gainNode.connect(audioContext.destination);

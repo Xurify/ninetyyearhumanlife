@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { useSoundEffect } from '$lib/audio';
 	
 	export let label: string = '';
 	export let value: number = 50;
@@ -10,44 +10,8 @@
 	let isDragging = false;
 	let sliderContainer: HTMLDivElement;
 	let previousValue = value;
-	let lastSoundTime = 0;
-	let audioContext: AudioContext;
-	let audioBuffer: AudioBuffer;
-
-	onMount(async () => {
-		try {
-			audioContext = new (window.AudioContext || window.webkitAudioContext)();
-			
-			const response = await fetch('/assets/digital-pop.mp3');
-			const arrayBuffer = await response.arrayBuffer();
-			audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-		} catch (error) {
-			console.error('Error initializing audio:', error);
-		}
-	});
-
-	function playSound() {
-		if (!audioContext || !audioBuffer) return;
-		
-		const now = Date.now();
-		if (now - lastSoundTime > 30) {
-			try {
-				const source = audioContext.createBufferSource();
-				source.buffer = audioBuffer;
-				
-				const gainNode = audioContext.createGain();
-				gainNode.gain.value = 0.3;
-				
-				source.connect(gainNode);
-				gainNode.connect(audioContext.destination);
-
-				source.start(0);
-				lastSoundTime = now;
-			} catch (error) {
-				console.error('Error playing sound:', error);
-			}
-		}
-	}
+	
+	const { playSound } = useSoundEffect('/assets/digital-pop.mp3');
 
 	function handleMouseDown(event: MouseEvent) {
 		isDragging = true;

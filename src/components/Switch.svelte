@@ -1,49 +1,12 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { useSoundEffect } from '$lib/audio';
 
 	export let label: string = '';
 	export let checked: boolean = false;
 	export let name: string = '';
 	export let disabled: boolean = false;
 
-	let audioContext: AudioContext;
-	let audioBuffer: AudioBuffer;
-	let lastSoundTime = 0;
-
-	onMount(async () => {
-		try {
-			audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-			const response = await fetch('/assets/digital-pop.mp3');
-			const arrayBuffer = await response.arrayBuffer();
-			audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-		} catch (error) {
-			console.error('Error initializing audio:', error);
-		}
-	});
-
-	function playSound() {
-		if (!audioContext || !audioBuffer) return;
-
-		const now = Date.now();
-		if (now - lastSoundTime > 30) {
-			try {
-				const source = audioContext.createBufferSource();
-				source.buffer = audioBuffer;
-
-				const gainNode = audioContext.createGain();
-				gainNode.gain.value = 0.3;
-
-				source.connect(gainNode);
-				gainNode.connect(audioContext.destination);
-
-				source.start(0);
-				lastSoundTime = now;
-			} catch (error) {
-				console.error('Error playing sound:', error);
-			}
-		}
-	}
+	const { playSound } = useSoundEffect('/assets/digital-pop.mp3');
 
 	function toggle() {
 		if (!disabled) {

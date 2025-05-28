@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { useSoundEffect } from '$lib/audio';
+	import { SOUND_EFFECTS } from '$lib/constants';
 	
 	export let label: string = '';
 	export let value: number = 50;
@@ -11,7 +12,7 @@
 	let sliderContainer: HTMLDivElement;
 	let previousValue = value;
 	
-	const { playSound } = useSoundEffect('/assets/digital-pop.mp3');
+	const { playSound } = useSoundEffect(SOUND_EFFECTS.DIGITAL_POP);
 
 	function handleMouseDown(event: MouseEvent) {
 		isDragging = true;

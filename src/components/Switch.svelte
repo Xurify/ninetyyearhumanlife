@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { useSoundEffect } from '$lib/audio';
-
+	import { SOUND_EFFECTS } from '$lib/constants';
+	
 	export let label: string = '';
 	export let checked: boolean = false;
 	export let name: string = '';
 	export let disabled: boolean = false;
 
-	const { playSound } = useSoundEffect('/assets/digital-pop.mp3');
+	const { playSound } = useSoundEffect(SOUND_EFFECTS.DIGITAL_POP);
 
 	function toggle() {
 		if (!disabled) {

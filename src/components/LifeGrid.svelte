@@ -15,10 +15,9 @@
 				<!-- svelte-ignore a11y-no-noninteractive-tabindex a11y-no-static-element-interactions -->
 				<div
 					class={`h-1 w-1 cursor-pointer rounded-full transition-all duration-300 sm:h-2 sm:w-2 md:h-3 md:w-3 lg:hover:scale-110 ${monthIndex >= monthsLived ? 'hover:bg-blue-700' : 'hover:bg-red-800'}`}
-					class:bg-red-500={monthIndex < monthsLived}
-					class:bg-blue-500={monthIndex >= monthsLived}
-					class:bg-red-800={selectedMonthIndex === monthIndex && monthIndex < monthsLived}
-					class:bg-blue-700={selectedMonthIndex === monthIndex && monthIndex >= monthsLived}
+					class:bg-red-500={monthIndex < monthsLived && selectedMonthIndex !== monthIndex}
+					class:bg-blue-500={monthIndex >= monthsLived && selectedMonthIndex !== monthIndex}
+					class:bg-green-500={selectedMonthIndex === monthIndex}
 					on:click={() => handleClick(monthIndex)}
 					on:keydown={() => handleClick(monthIndex)}
 					aria-label="Month Index"

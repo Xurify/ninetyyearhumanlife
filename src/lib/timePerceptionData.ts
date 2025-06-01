@@ -106,7 +106,7 @@ export const timePerceptionData: TimePerceptionData[] = [
 			"No reference frame for time comparison"
 		],
 		examples: [
-			"Waiting for Christmas feels like an eternity",
+			"Waiting for holidays feels like an eternity",
 			"Summer vacation seems to last forever",
 			"A car ride to grandma's house feels like a cross-country journey"
 		],

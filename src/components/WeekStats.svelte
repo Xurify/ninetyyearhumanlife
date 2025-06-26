@@ -41,22 +41,22 @@
 	</div>
 
 	<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-		<div class="space-y-6">
-			<div class="text-center p-6 rounded-lg bg-neutral-900/50 border border-neutral-800">
+		<div class="space-y-6 flex flex-col">
+			<div class="text-center p-6 rounded-lg bg-neutral-900/50 border border-neutral-800 flex-1">
 				<div class="text-3xl font-light text-neutral-100 mb-2">
 					{formatNumber(lifeData.weeksLived)}
 				</div>
 				<div class="text-sm text-neutral-400">weeks lived</div>
 			</div>
 
-			<div class="text-center p-6 rounded-lg bg-neutral-900/50 border border-neutral-800">
+			<div class="text-center p-6 rounded-lg bg-neutral-900/50 border border-neutral-800 flex-1">
 				<div class="text-3xl font-light text-neutral-100 mb-2">
 					{formatNumber(lifeData.daysLived)}
 				</div>
 				<div class="text-sm text-neutral-400">days on earth</div>
 			</div>
 
-			<div class="text-center p-6 rounded-lg bg-neutral-900/50 border border-neutral-800">
+			<div class="text-center p-6 rounded-lg bg-neutral-900/50 border border-neutral-800 flex-1">
 				<div class="text-3xl font-light text-neutral-100 mb-2">
 					{Math.round(lifeData.yearsLived * 10) / 10}
 				</div>
@@ -64,22 +64,22 @@
 			</div>
 		</div>
 
-		<div class="space-y-6">
-			<div class="text-center p-6 rounded-lg bg-neutral-900/50 border border-neutral-800">
+		<div class="space-y-6 flex flex-col">
+			<div class="text-center p-6 rounded-lg bg-neutral-900/50 border border-neutral-800 flex-1">
 				<div class="text-3xl font-light text-neutral-100 mb-2">
 					{formatNumber(lifeData.weeksRemaining)}
 				</div>
 				<div class="text-sm text-neutral-400">weeks remaining</div>
 			</div>
 
-			<div class="text-center p-6 rounded-lg bg-neutral-900/50 border border-neutral-800">
+			<div class="text-center p-6 rounded-lg bg-neutral-900/50 border border-neutral-800 flex-1">
 				<div class="text-3xl font-light text-neutral-100 mb-2">
 					{weeksSinceNewYear}
 				</div>
 				<div class="text-sm text-neutral-400">weeks into this year</div>
 			</div>
 
-			<div class="text-center p-6 rounded-lg bg-neutral-900/50 border border-neutral-800">
+			<div class="text-center p-6 rounded-lg bg-neutral-900/50 border border-neutral-800 flex-1">
 				<div class="text-lg font-light text-neutral-100 mb-2 capitalize">
 					{lifeStage}
 				</div>

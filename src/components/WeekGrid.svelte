@@ -38,7 +38,7 @@
 			<h2 class="text-lg sm:text-xl font-light text-neutral-200 px-4 text-center">
 				Each square represents one month of life
 			</h2>
-			<div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-xs sm:text-sm text-neutral-400">
+			<div class="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-xs md:text-sm text-neutral-400">
 				<div class="flex items-center gap-2">
 					<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-neutral-600"></div>
 					<span>Months lived</span>

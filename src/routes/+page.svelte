@@ -1,46 +1,33 @@
 <script lang="ts">
-	import ControlPanel from '../components/ControlPanel.svelte';
-	import LifeGrid from '../components/LifeGrid.svelte';
-	import LifeStats from '../components/LifeStats.svelte';
-	import TimePerception from '../components/TimePerception.svelte';
-	import EducationalSection from '../components/EducationalSection.svelte';
-	import AllReferences from '../components/AllReferences.svelte';
-	import { getTimePerceptionForAge, getTimePerceptionForMonth } from '../lib/timePerceptionData';
+	import BirthDateInput from '../components/BirthDateInput.svelte';
+	import WeekGrid from '../components/WeekGrid.svelte';
+	import WeekStats from '../components/WeekStats.svelte';
+	import Navigation from '../components/Navigation.svelte';
+	import { calculateLifeData, type LifeData } from '../lib/weekCalculations';
 
-	let age: number = 20;
+	let currentStep: 'input' | 'visualization' = 'input';
+	let lifeData: LifeData | null = null;
 
-	$: monthsLived = age * 12;
-	let selectedMonthIndex: number | null = null;
-	let showAdvanced: boolean = false;
+	function handleBirthDateSubmit(event: CustomEvent<Date>) {
+		const birthDate = event.detail;
+		lifeData = calculateLifeData(birthDate);
+		currentStep = 'visualization';
+	}
 
-	$: currentTimePerception = getTimePerceptionForAge(age);
-	$: selectedTimePerception = selectedMonthIndex !== null
-		? getTimePerceptionForMonth(selectedMonthIndex)
-		: currentTimePerception;
-
-	const handleClick = (monthIndex: number) => {
-		if (monthIndex === selectedMonthIndex) {
-			selectedMonthIndex = null;
-			return;
-		}
-		selectedMonthIndex = monthIndex;
-	};
+	function handleBack() {
+		currentStep = 'input';
+		lifeData = null;
+	}
 </script>
 
-<div class="mx-auto flex max-w-4xl flex-col items-center gap-6 p-4">
-	<h1 class="text-center text-2xl font-bold lg:text-3xl">
-		A 90-Year Human Life in Months
-	</h1>
-	<ControlPanel bind:age {selectedMonthIndex} bind:showAdvanced />
-	<LifeGrid {monthsLived} {selectedMonthIndex} {handleClick} />
-	<LifeStats {monthsLived} />
-	{#if showAdvanced}
-		<TimePerception
-			timePerceptionData={selectedTimePerception}
-			currentAge={age}
-			selectedMonth={selectedMonthIndex}
-		/>
-		<EducationalSection />
-		<AllReferences />
-	{/if}
-</div>
+{#if currentStep === 'input'}
+	<BirthDateInput on:submit={handleBirthDateSubmit} />
+{:else if currentStep === 'visualization' && lifeData}
+	<Navigation on:back={handleBack} />
+	<div class="min-h-screen px-4 py-16">
+		<div class="mx-auto flex max-w-6xl flex-col items-center gap-12">
+			<WeekGrid {lifeData} />
+			<WeekStats {lifeData} />
+		</div>
+	</div>
+{/if}

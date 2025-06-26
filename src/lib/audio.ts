@@ -6,8 +6,8 @@ let lastSoundTime = 0;
 
 export async function initAudio(soundPath: string) {
 	try {
-    if (!soundPath) return false;
-  
+		if (!soundPath) return false;
+
 		audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
 		const response = await fetch(soundPath);
@@ -44,7 +44,7 @@ export function playSound(throttleMs: number = 30, volume: number = 0.3) {
 	}
 }
 
-export function useSoundEffect(soundPath: string = '/assets/digital-pop.mp3') {
+export function useSoundEffect(soundPath: string = '') {
 	onMount(() => {
 		initAudio(soundPath);
 	});

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
 	import CustomCalendar from './CustomCalendar.svelte';
 
 	const dispatch = createEventDispatcher<{ submit: Date }>();
@@ -50,8 +50,22 @@
 			showCalendar = false;
 		}
 	}
+
+	onMount(() => {
+		function handleGlobalKeydown(event: KeyboardEvent) {
+			if (event.key === 'Escape') {
+				showCalendar = false;
+			}
+		}
+		window.addEventListener('keydown', handleGlobalKeydown);
+		return () => {
+			window.removeEventListener('keydown', handleGlobalKeydown);
+		};
+	});
 </script>
 
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y-no-static-element-interactions -->
 <div class="flex min-h-screen flex-col items-center justify-center px-4" on:click={handleClickOutside}>
 	<div class="w-full max-w-md space-y-8 text-center">
 		<div class="space-y-4">

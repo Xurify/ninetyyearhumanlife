@@ -90,7 +90,7 @@
 				{#each options as option}
 					<button
 						type="button"
-						on:click={() => selectOption(option)}
+						on:click|stopPropagation={() => selectOption(option)}
 						class="w-full px-3 py-2 text-sm text-left text-neutral-100 hover:bg-neutral-600 transition-colors block
 							{option === selectedOption ? 'bg-neutral-600' : ''}"
 					>

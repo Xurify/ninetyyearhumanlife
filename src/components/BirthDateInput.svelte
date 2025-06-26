@@ -108,7 +108,7 @@
 
 				{#if showCalendar}
 					<div class="absolute top-full left-0 right-0 z-50 mt-1">
-						<CustomCalendar on:select={handleDateSelect} />
+						<CustomCalendar selectedDate={selectedDate} on:select={handleDateSelect} />
 					</div>
 				{/if}
 			</div>

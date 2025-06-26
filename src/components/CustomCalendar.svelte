@@ -2,11 +2,19 @@
 	import { createEventDispatcher } from 'svelte';
 	import CustomDropdown from './CustomDropdown.svelte';
 
+	export let selectedDate: Date | null = null;
+
 	const dispatch = createEventDispatcher<{ select: Date }>();
 
 	let selectedYear = new Date().getFullYear();
 	let selectedMonth = new Date().getMonth();
 	let selectedDay: number | null = null;
+
+	$: if (selectedDate) {
+		selectedYear = selectedDate.getFullYear();
+		selectedMonth = selectedDate.getMonth();
+		selectedDay = selectedDate.getDate();
+	}
 
 	const months = [
 		'January', 'February', 'March', 'April', 'May', 'June',
@@ -64,7 +72,6 @@
 </script>
 
 <div class="w-full max-w-sm mx-auto bg-neutral-800 rounded-lg border border-neutral-600 p-3 sm:p-4 shadow-xl">
-	<!-- Year and Month Selectors -->
 	<div class="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0 mb-4">
 		<div class="w-full sm:w-20">
 			<CustomDropdown
@@ -102,9 +109,7 @@
 		</div>
 	</div>
 
-	<!-- Calendar Grid -->
 	<div class="grid grid-cols-7 gap-1 sm:gap-1">
-		<!-- Day Headers -->
 		{#each ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'] as day}
 			<div class="text-center text-xs sm:text-xs text-neutral-400 py-2 font-medium">
 				{day}
@@ -112,23 +117,25 @@
 		{/each}
 
 		<!-- Empty cells for days before month starts -->
-		{#each Array(firstDayOfMonth) as _}
-			<div class="h-8 sm:h-8"></div>
+		{#each Array(firstDayOfMonth) as _, i}
+			{@const prevMonth = selectedMonth === 0 ? 11 : selectedMonth - 1}
+			{@const prevYear = selectedMonth === 0 ? selectedYear - 1 : selectedYear}
+			{@const daysInPrevMonth = new Date(prevYear, prevMonth + 1, 0).getDate()}
+			{@const day = daysInPrevMonth - firstDayOfMonth + i + 1}
+			<div class="h-8 sm:h-8 flex items-center justify-center text-neutral-500 bg-neutral-800 opacity-60 select-none">
+				{day}
+			</div>
 		{/each}
 
-		<!-- Days of the month -->
 		{#each Array(daysInMonth) as _, i}
 			{@const day = i + 1}
 			<button
 				on:click={() => selectDate(day)}
-				disabled={isFutureDate(day)}
 				class="h-8 w-8 sm:h-8 sm:w-8 text-xs sm:text-sm rounded transition-all duration-200 flex items-center justify-center touch-manipulation
 					{selectedDay === day 
 						? 'bg-white text-neutral-900 font-medium' 
 						: isToday(day)
 						? 'bg-neutral-600 text-white'
-						: isFutureDate(day)
-						? 'text-neutral-500 cursor-not-allowed'
 						: 'text-neutral-200 hover:bg-neutral-700'
 					}"
 			>
@@ -136,10 +143,4 @@
 			</button>
 		{/each}
 	</div>
-
-	{#if selectedDay}
-		<div class="mt-4 text-center text-sm text-neutral-400">
-			Selected: {months[selectedMonth]} {selectedDay}, {selectedYear}
-		</div>
-	{/if}
 </div>

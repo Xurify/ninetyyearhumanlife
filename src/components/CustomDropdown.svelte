@@ -1,15 +1,14 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 
-	export let value: any;
-	export let options: any[] = [];
+	export let value: number;
+	export let options: number[] = [];
 	export let placeholder = 'Select...';
 	export let maxHeight = '200px';
 
-	const dispatch = createEventDispatcher<{ change: any }>();
+	const dispatch = createEventDispatcher<{ change: number }>();
 
 	let isOpen = false;
-	let dropdownElement: HTMLDivElement;
 	let scrollContainer: HTMLDivElement;
 
 	$: selectedOption = options.find(option => option === value) || value;
@@ -32,7 +31,7 @@
 		}
 	}
 
-	function selectOption(option: any) {
+	function selectOption(option: number) {
 		value = option;
 		isOpen = false;
 		dispatch('change', option);
@@ -58,11 +57,12 @@
 			document.removeEventListener('click', handleClickOutside);
 		}
 	}
+
 </script>
 
 <svelte:window on:keydown={handleKeydown} />
 
-<div class="custom-dropdown relative" bind:this={dropdownElement}>
+<div class="custom-dropdown relative">
 	<button
 		type="button"
 		on:click={toggleDropdown}

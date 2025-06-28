@@ -27,14 +27,16 @@
 	$: daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
 	$: firstDayOfMonth = new Date(selectedYear, selectedMonth, 1).getDay();
 
+	$: {
+		selectedYear;
+		selectedMonth;
+		selectedDay = null;
+	}
+
 	function selectDate(day: number) {
 		selectedDay = day;
 		const date = new Date(selectedYear, selectedMonth, day);
 		dispatch('select', date);
-	}
-
-	function handleYearChange() {
-		selectedDay = null;
 	}
 
 	function previousMonth() {
@@ -63,21 +65,17 @@
 			   selectedMonth === today.getMonth() && 
 			   day === today.getDate();
 	}
-
-	function isFutureDate(day: number): boolean {
-		const today = new Date();
-		const checkDate = new Date(selectedYear, selectedMonth, day);
-		return checkDate > today;
-	}
 </script>
 
 <div class="w-full max-w-sm mx-auto bg-neutral-800 rounded-lg border border-neutral-600 p-3 sm:p-4 shadow-xl">
 	<div class="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0 mb-4">
 		<div class="w-full sm:w-20">
 			<CustomDropdown
-				bind:value={selectedYear}
+				value={selectedYear}
 				options={years}
-				on:change={(e) => { selectedYear = e.detail; handleYearChange(); }}
+				on:change={(e) => {
+					selectedYear = e.detail;
+				}}
 				maxHeight="200px"
 			/>
 		</div>

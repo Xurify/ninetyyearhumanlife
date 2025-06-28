@@ -35,15 +35,6 @@
 		}
 	}
 
-	function handleKeydown(event: KeyboardEvent) {
-		if (event.key === 'Enter' && isValid) {
-			handleSubmit();
-		}
-		if (event.key === 'Escape') {
-			showCalendar = false;
-		}
-	}
-
 	function handleClickOutside(event: MouseEvent) {
 		const target = event.target as Element;
 		if (!target.closest('.calendar-container')) {
@@ -91,7 +82,6 @@
 						bind:this={inputElement}
 						type="text"
 						value={displayValue}
-						on:keydown={handleKeydown}
 						on:focus={() => showCalendar = true}
 						placeholder="Select your birth date"
 						readonly

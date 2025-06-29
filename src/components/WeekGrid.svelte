@@ -61,7 +61,7 @@
 						{@const monthIndex = rowIndex * monthsPerRow + monthInRow}
 						<div
 							class={getMonthClasses(monthIndex)}
-							title={`Row ${rowIndex + 1}, Month ${monthInRow + 1}`}
+							title={`Row ${rowIndex + 1}, Month ${monthIndex + 1}`}
 						></div>
 					{/each}
 				{/each}

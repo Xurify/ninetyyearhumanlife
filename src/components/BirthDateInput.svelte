@@ -60,8 +60,8 @@
 <div class="flex min-h-screen flex-col items-center justify-center px-4" on:click={handleClickOutside}>
 	<div class="w-full max-w-md space-y-8 text-center">
 		<div class="space-y-4">
-			<div style="display: flex; justify-content: center;">
-				<img src="/icon.svg" alt="App Icon" style="width: 72px; height: 72px; margin-bottom: 0.5rem;" />
+			<div class="flex justify-center">
+				<img src="/icon.svg" alt="App Icon" class="w-20 h-20" />
 			</div>
 			<h1 class="text-3xl font-light tracking-wide text-neutral-100 sm:text-4xl">
 				Ninety Year Human Life

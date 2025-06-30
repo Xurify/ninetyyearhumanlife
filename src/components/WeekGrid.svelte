@@ -55,7 +55,7 @@
 		</div>
 
 		<div class="overflow-x-auto">
-			<div class="grid grid-cols-36 gap-0.5 min-w-max mx-auto" style="width: fit-content;">
+			<div class="grid grid-cols-36 gap-0.5 min-w-max mx-auto w-fit">
 				{#each Array(totalRows) as _, rowIndex}
 					{#each Array(monthsPerRow) as _, monthInRow}
 						{@const monthIndex = rowIndex * monthsPerRow + monthInRow}

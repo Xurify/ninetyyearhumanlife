@@ -41,15 +41,6 @@ export function calculateLifeData(birthDate: Date): LifeData {
 	};
 }
 
-export function formatDate(date: Date): string {
-	return date.toLocaleDateString('en-US', {
-		year: 'numeric',
-		month: 'long',
-		day: 'numeric',
-		timeZone: 'UTC'
-	});
-}
-
 export function getLifeStage(yearsLived: number): string {
 	if (yearsLived < 2) return 'Infancy';
 	if (yearsLived < 12) return 'Childhood';

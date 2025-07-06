@@ -23,8 +23,11 @@
 	function handleBirthDateSubmit(event: CustomEvent<Date>) {
 		const birthDate = event.detail;
 		lifeData = calculateLifeData(birthDate);
-
-		const dateParam = birthDate.toISOString().slice(0, 10);
+		const dateParam = [
+			birthDate.getFullYear(),
+			String(birthDate.getMonth() + 1).padStart(2, '0'),
+			String(birthDate.getDate()).padStart(2, '0')
+		].join('-');
 		const url = new URL(window.location.href);
 		url.searchParams.set('birth_date', dateParam);
 

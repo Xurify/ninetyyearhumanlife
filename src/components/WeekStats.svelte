@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { LifeData } from '../lib/weekCalculations';
-	import { formatDate, getLifeStage } from '../lib/weekCalculations';
+	import { getLifeStage } from '../lib/weekCalculations';
+	import { formatDate } from '../lib/date';
 	import StatCard from './StatCard.svelte';
 
 	export let lifeData: LifeData;

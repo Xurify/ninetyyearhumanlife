@@ -50,6 +50,13 @@
 	}
 
 	function nextMonth() {
+		const today = new Date();
+		if (
+			selectedYear > today.getFullYear() ||
+			(selectedYear === today.getFullYear() && selectedMonth >= today.getMonth())
+		) {
+			return;
+		}
 		if (selectedMonth === 11) {
 			selectedMonth = 0;
 			selectedYear++;
@@ -97,8 +104,12 @@
 
 			<button
 				on:click={nextMonth}
-				class="p-2 sm:p-1 hover:bg-neutral-700 rounded transition-colors touch-manipulation"
+				class="p-2 sm:p-1 rounded transition-colors touch-manipulation
+					{selectedYear > currentYear || (selectedYear === currentYear && selectedMonth >= new Date().getMonth())
+						? 'opacity-60 cursor-not-allowed bg-neutral-800'
+						: 'hover:bg-neutral-700'}"
 				aria-label="Next month"
+				disabled={selectedYear > currentYear || (selectedYear === currentYear && selectedMonth >= new Date().getMonth())}
 			>
 				<svg class="w-5 h-5 sm:w-4 sm:h-4 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />

@@ -61,7 +61,7 @@
 	<div class="w-full max-w-md space-y-8 text-center">
 		<div class="space-y-4">
 			<div class="flex justify-center">
-				<img src="/icon.svg" alt="App Icon" class="w-20 h-20" />
+				<img src="/icon.svg" alt="App Icon" class="w-20 h-20" width={150} height={150} loading="eager" />
 			</div>
 			<h1 class="text-3xl font-light tracking-wide text-neutral-100 sm:text-4xl">
 				Ninety Year Human Life

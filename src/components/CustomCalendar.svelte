@@ -129,7 +129,7 @@
 			{@const day = i + 1}
 			<button
 				on:click={() => selectDate(day)}
-				class="h-8 w-8 sm:h-8 sm:w-8 text-xs sm:text-sm rounded transition-all duration-200 flex items-center justify-center touch-manipulation
+				class="h-8 w-full text-xs sm:text-sm rounded transition-all duration-200 flex items-center justify-center touch-manipulation
 					{selectedDay === day 
 						? 'bg-white text-neutral-900 font-medium' 
 						: isToday(day)

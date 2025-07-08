@@ -6,15 +6,20 @@
 
 	const dispatch = createEventDispatcher<{ select: Date }>();
 
-	let selectedYear = new Date().getFullYear();
-	let selectedMonth = new Date().getMonth();
-	let selectedDay: number | null = null;
+	let selectedYear = selectedDate ? selectedDate.getFullYear() : new Date().getFullYear();
+	let selectedMonth = selectedDate ? selectedDate.getMonth() : new Date().getMonth();
+	let selectedDay: number | null = selectedDate ? selectedDate.getDate() : null;
 
 	$: if (selectedDate) {
 		selectedYear = selectedDate.getFullYear();
 		selectedMonth = selectedDate.getMonth();
 		selectedDay = selectedDate.getDate();
+	} else {
+		selectedYear = new Date().getFullYear();
+		selectedMonth = new Date().getMonth();
+		selectedDay = null;
 	}
+
 
 	const months = [
 		'January', 'February', 'March', 'April', 'May', 'June',
@@ -30,7 +35,9 @@
 	$: {
 		selectedYear;
 		selectedMonth;
-		selectedDay = null;
+		if (!selectedDate || selectedDay !== selectedDate.getDate() || selectedMonth !== selectedDate.getMonth() || selectedYear !== selectedDate.getFullYear()) {
+			selectedDay = null;
+		}
 	}
 
 	function selectDate(day: number) {
@@ -46,7 +53,6 @@
 		} else {
 			selectedMonth--;
 		}
-		selectedDay = null;
 	}
 
 	function nextMonth() {
@@ -63,13 +69,12 @@
 		} else {
 			selectedMonth++;
 		}
-		selectedDay = null;
 	}
 
 	function isToday(day: number): boolean {
 		const today = new Date();
-		return selectedYear === today.getFullYear() && 
-			   selectedMonth === today.getMonth() && 
+		return selectedYear === today.getFullYear() &&
+			   selectedMonth === today.getMonth() &&
 			   day === today.getDate();
 	}
 </script>
@@ -141,8 +146,8 @@
 			<button
 				on:click={() => selectDate(day)}
 				class="h-8 w-full text-xs sm:text-sm rounded transition-all duration-200 flex items-center justify-center touch-manipulation
-					{selectedDay === day 
-						? 'bg-white text-neutral-900 font-medium' 
+					{selectedDay === day
+						? 'bg-white text-neutral-900 font-medium'
 						: isToday(day)
 						? 'bg-neutral-600 text-white'
 						: 'text-neutral-200 hover:bg-neutral-700'

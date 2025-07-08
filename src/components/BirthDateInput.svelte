@@ -2,9 +2,9 @@
 	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
 	import CustomCalendar from './CustomCalendar.svelte';
 
-	const dispatch = createEventDispatcher<{ submit: Date }>();
+	const dispatch = createEventDispatcher<{ submit: Date, select: Date }>();
 
-	let selectedDate: Date | null = null;
+	export let selectedDate: Date | null = null;
 	let showCalendar = false;
 	let inputElement: HTMLInputElement;
 
@@ -20,7 +20,7 @@
 	}
 
 	function handleDateSelect(event: CustomEvent<Date>) {
-		selectedDate = event.detail;
+		dispatch('select', event.detail);
 		showCalendar = false;
 		inputElement?.blur();
 	}

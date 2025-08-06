@@ -8,6 +8,7 @@
 	import WeekGrid from '../components/WeekGrid.svelte';
 	import WeekStats from '../components/WeekStats.svelte';
 	import Navigation from '../components/Navigation.svelte';
+	import MusicPlayer from '../components/MusicPlayer.svelte';
 
 	let currentStep: 1 | 2 = 1;
 	let lifeData: LifeData | null = null;
@@ -58,10 +59,11 @@
 	<BirthDateInput selectedDate={selectedDate} on:select={handleDateSelect} on:submit={handleBirthDateSubmit} />
 {:else if currentStep === 2 && lifeData}
 	<Navigation on:back={handleBack} />
-	<div class="min-h-screen px-4 py-16">
+	<div class="min-h-screen px-4 pt-16 pb-24 md:pb-16">
 		<div class="mx-auto flex max-w-6xl flex-col items-center gap-12">
 			<WeekGrid {lifeData} />
 			<WeekStats {lifeData} />
 		</div>
 	</div>
+	<!-- <MusicPlayer /> -->
 {/if}

@@ -56,7 +56,7 @@
 	}
 </script>
 
-<div class="fixed right-2 z-50 transform md:top-6 md:transform-none">
+<div class="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 transform md:right-2 md:top-6 md:left-auto md:bottom-auto md:translate-x-0">
 	<div
 		class="relative rounded-lg border border-neutral-700 bg-neutral-900/95 px-3 py-2 shadow-lg backdrop-blur-md md:px-4 md:py-3"
 	>

@@ -4,7 +4,7 @@ let audioContext: AudioContext;
 let audioBuffer: AudioBuffer;
 let lastSoundTime = 0;
 
-export async function initAudio(soundPath: string) {
+export async function initAudio(soundPath: string): Promise<boolean> {
 	try {
 		if (!soundPath) return false;
 
@@ -21,11 +21,11 @@ export async function initAudio(soundPath: string) {
 	}
 }
 
-export function playSound(throttleMs: number = 30, volume: number = 0.3) {
+export function playSound(throttleMilliseconds: number = 30, volume: number = 0.3): void {
 	if (!audioContext || !audioBuffer) return;
 
 	const now = Date.now();
-	if (now - lastSoundTime > throttleMs) {
+	if (now - lastSoundTime > throttleMilliseconds) {
 		try {
 			const source = audioContext.createBufferSource();
 			source.buffer = audioBuffer;
@@ -44,7 +44,9 @@ export function playSound(throttleMs: number = 30, volume: number = 0.3) {
 	}
 }
 
-export function useSoundEffect(soundPath: string = '') {
+export function useSoundEffect(soundPath: string = ''): {
+	playSound: (throttleMilliseconds?: number, volume?: number) => void;
+} {
 	onMount(() => {
 		initAudio(soundPath);
 	});

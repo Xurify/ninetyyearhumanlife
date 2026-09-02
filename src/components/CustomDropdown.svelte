@@ -1,26 +1,33 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
+	interface Props {
+		value: number;
+		options?: number[];
+		placeholder?: string;
+		maxHeight?: string;
+		onchange?: (option: number) => void;
+	}
 
-	export let value: number;
-	export let options: number[] = [];
-	export let placeholder = 'Select...';
-	export let maxHeight = '200px';
+	let {
+		value = $bindable(),
+		options = [],
+		placeholder = 'Select...',
+		maxHeight = '200px',
+		onchange
+	}: Props = $props();
 
-	const dispatch = createEventDispatcher<{ change: number }>();
+	let isOpen = $state(false);
+	let scrollContainer = $state<HTMLDivElement>();
 
-	let isOpen = false;
-	let scrollContainer: HTMLDivElement;
+	let selectedOption = $derived(options.find((option) => option === value) || value);
 
-	$: selectedOption = options.find((option) => option === value) || value;
-
-	function toggleDropdown() {
+	function toggleDropdown(): void {
 		isOpen = !isOpen;
 		if (isOpen) {
 			setTimeout(() => scrollToSelected(), 0);
 		}
 	}
 
-	function scrollToSelected() {
+	function scrollToSelected(): void {
 		if (!scrollContainer || !selectedOption) return;
 
 		const selectedIndex = options.findIndex((option) => option === selectedOption);
@@ -31,40 +38,41 @@
 		}
 	}
 
-	function selectOption(option: number) {
+	function selectOption(option: number): void {
 		value = option;
 		isOpen = false;
-		dispatch('change', option);
+		onchange?.(option);
 	}
 
-	function handleKeydown(event: KeyboardEvent) {
+	function handleKeydown(event: KeyboardEvent): void {
 		if (event.key === 'Escape') {
 			isOpen = false;
 		}
 	}
 
-	function handleClickOutside(event: MouseEvent) {
+	function handleClickOutside(event: MouseEvent): void {
 		const target = event.target as Element;
 		if (!target.closest('.custom-dropdown')) {
 			isOpen = false;
 		}
 	}
 
-	$: if (typeof window !== 'undefined') {
-		if (isOpen) {
+	$effect(() => {
+		if (typeof window !== 'undefined' && isOpen) {
 			document.addEventListener('click', handleClickOutside);
-		} else {
-			document.removeEventListener('click', handleClickOutside);
+			return () => {
+				document.removeEventListener('click', handleClickOutside);
+			};
 		}
-	}
+	});
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 <div class="custom-dropdown relative">
 	<button
 		type="button"
-		on:click={toggleDropdown}
+		onclick={toggleDropdown}
 		class="hover:bg-neutral-650 flex w-full touch-manipulation items-center justify-between rounded border border-neutral-600 bg-neutral-700 px-2 py-2 text-xs text-neutral-100 transition-colors focus:border-neutral-400 focus:outline-none sm:px-3 sm:py-2 sm:text-sm"
 	>
 		<span class="truncate">
@@ -91,7 +99,10 @@
 				{#each options as option}
 					<button
 						type="button"
-						on:click|stopPropagation={() => selectOption(option)}
+						onclick={(event) => {
+							event.stopPropagation();
+							selectOption(option);
+						}}
 						class="block w-full px-3 py-2 text-left text-sm text-neutral-100 transition-colors hover:bg-neutral-600
 							{option === selectedOption ? 'bg-neutral-600' : ''}"
 					>
@@ -104,7 +115,6 @@
 </div>
 
 <style>
-	/* Custom scrollbar for the dropdown - shadcn/Radix style */
 	.custom-dropdown div::-webkit-scrollbar {
 		width: 8px;
 	}
@@ -125,7 +135,6 @@
 		background-clip: content-box;
 	}
 
-	/* Firefox scrollbar */
 	.custom-dropdown div {
 		scrollbar-width: thin;
 		scrollbar-color: #525252 transparent;

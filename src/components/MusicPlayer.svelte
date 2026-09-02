@@ -2,13 +2,13 @@
 	import { onMount } from 'svelte';
 	import { MUSIC_TRACKS } from '$lib/constants';
 
-	let audio: HTMLAudioElement;
-	let isPlaying = false;
-	let volume = 0.15;
-	let currentTrackIndex = 0;
+	let audio = $state<HTMLAudioElement>();
+	let isPlaying = $state(false);
+	let volume = $state(0.15);
+	let currentTrackIndex = $state(0);
 
 	const tracks = Object.values(MUSIC_TRACKS);
-	$: currentTrack = tracks[currentTrackIndex];
+	let currentTrack = $derived(tracks[currentTrackIndex]);
 
 	onMount(() => {
 		audio = new Audio(currentTrack.url);
@@ -18,7 +18,10 @@
 			nextTrack();
 		});
 
-		audio.play();
+		audio.play().catch((error: unknown) => {
+			isPlaying = false;
+			console.error('Failed to play audio:', error);
+		});
 		isPlaying = true;
 
 		return () => {
@@ -26,29 +29,36 @@
 		};
 	});
 
-	function togglePlayPause() {
+	function togglePlayPause(): void {
+		if (!audio) return;
 		if (isPlaying) {
 			audio.pause();
 			isPlaying = false;
 		} else {
-			audio.play();
+			audio.play().catch((error: unknown) => {
+				isPlaying = false;
+				console.error('Failed to play audio:', error);
+			});
 			isPlaying = true;
 		}
 	}
 
-	function nextTrack() {
+	function nextTrack(): void {
 		const nextIndex = (currentTrackIndex + 1) % tracks.length;
 		currentTrackIndex = nextIndex;
 		const nextTrackData = tracks[nextIndex];
 		if (audio) {
 			audio.src = nextTrackData.url;
 			if (isPlaying) {
-				audio.play();
+				audio.play().catch((error: unknown) => {
+					isPlaying = false;
+					console.error('Failed to play audio:', error);
+				});
 			}
 		}
 	}
 
-	function handleVolumeChange(event: Event) {
+	function handleVolumeChange(event: Event): void {
 		const target = event.target as HTMLInputElement;
 		volume = parseFloat(target.value);
 		if (audio) {
@@ -71,7 +81,9 @@
 
 			<div class="flex flex-shrink-0 items-center gap-1.5 md:gap-2">
 				<button
-					on:click={togglePlayPause}
+					type="button"
+					onclick={togglePlayPause}
+					aria-label={isPlaying ? 'Pause music' : 'Play music'}
 					class="flex h-6 w-6 items-center justify-center rounded-full bg-neutral-800 transition-colors hover:bg-neutral-700 md:h-7 md:w-7"
 				>
 					{#if isPlaying}
@@ -94,7 +106,9 @@
 				</button>
 
 				<button
-					on:click={nextTrack}
+					type="button"
+					onclick={nextTrack}
+					aria-label="Next track"
 					class="flex h-5 w-5 items-center justify-center rounded-full bg-neutral-800 transition-colors hover:bg-neutral-700 md:h-6 md:w-6"
 				>
 					<svg
@@ -123,7 +137,8 @@
 					max="1"
 					step="0.1"
 					value={volume}
-					on:input={handleVolumeChange}
+					oninput={handleVolumeChange}
+					aria-label="Volume slider"
 					class="slider h-1 w-12 cursor-pointer appearance-none rounded-lg bg-neutral-700 md:w-16"
 				/>
 			</div>

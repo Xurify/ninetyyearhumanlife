@@ -13,8 +13,8 @@ export interface LifeData {
 
 export function calculateLifeData(birthDate: Date): LifeData {
 	const now = new Date();
-	const timeDiff = now.getTime() - birthDate.getTime();
-	const daysLived = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+	const timeDifference = now.getTime() - birthDate.getTime();
+	const daysLived = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
 	const weeksLived = Math.floor(daysLived / 7);
 
 	const totalWeeks = 90 * 52; // 4680 weeks (90 years) matching the grid

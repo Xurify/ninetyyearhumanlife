@@ -4,18 +4,22 @@
 	import { formatDate } from '../lib/date';
 	import StatCard from './StatCard.svelte';
 
-	export let lifeData: LifeData;
+	interface Props {
+		lifeData: LifeData;
+	}
 
-	$: lifeStage = getLifeStage(lifeData.yearsLived);
-	$: weeksSinceNewYear = (() => {
+	let { lifeData }: Props = $props();
+
+	let lifeStage = $derived(getLifeStage(lifeData.yearsLived));
+	let weeksSinceNewYear = $derived.by(() => {
 		const now = new Date();
 		const startOfYear = new Date(now.getFullYear(), 0, 1);
-		const timeDiff = now.getTime() - startOfYear.getTime();
-		return Math.floor(timeDiff / (1000 * 60 * 60 * 24 * 7));
-	})();
+		const timeDifference = now.getTime() - startOfYear.getTime();
+		return Math.floor(timeDifference / (1000 * 60 * 60 * 24 * 7));
+	});
 
-	function formatNumber(num: number): string {
-		return num.toLocaleString();
+	function formatNumber(numericalValue: number): string {
+		return numericalValue.toLocaleString();
 	}
 
 	function getReflectiveMessage(): string {

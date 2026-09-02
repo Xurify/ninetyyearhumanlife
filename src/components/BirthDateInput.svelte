@@ -1,38 +1,41 @@
 <script lang="ts">
-	import { createEventDispatcher, onMount } from 'svelte';
+	import { onMount } from 'svelte';
 	import CustomCalendar from './CustomCalendar.svelte';
 
-	const dispatch = createEventDispatcher<{
-		submit: Date;
-		select: Date;
-	}>();
+	interface Props {
+		selectedDate?: Date | null;
+		onselect?: (date: Date) => void;
+		onsubmit?: (date: Date) => void;
+	}
 
-	export let selectedDate: Date | null = null;
+	let { selectedDate = $bindable(null), onselect, onsubmit }: Props = $props();
 
-	let showCalendar = false;
+	let showCalendar = $state(false);
 
-	let monthInput = selectedDate ? String(selectedDate.getMonth() + 1).padStart(2, '0') : '';
-	let dayInput = selectedDate ? String(selectedDate.getDate()).padStart(2, '0') : '';
-	let yearInput = selectedDate ? String(selectedDate.getFullYear()) : '';
+	let monthInput = $state('');
+	let dayInput = $state('');
+	let yearInput = $state('');
 
-	let monthInputElement: HTMLInputElement;
-	let dayInputElement: HTMLInputElement;
-	let yearInputElement: HTMLInputElement;
+	let monthInputElement = $state<HTMLInputElement>();
+	let dayInputElement = $state<HTMLInputElement>();
+	let yearInputElement = $state<HTMLInputElement>();
 
 	const today = new Date();
 	const currentYear = today.getFullYear();
 
-	$: if (selectedDate) {
-		const formattedMonth = String(selectedDate.getMonth() + 1).padStart(2, '0');
-		const formattedDay = String(selectedDate.getDate()).padStart(2, '0');
-		const formattedYear = String(selectedDate.getFullYear());
+	$effect(() => {
+		if (selectedDate) {
+			const formattedMonth = String(selectedDate.getMonth() + 1).padStart(2, '0');
+			const formattedDay = String(selectedDate.getDate()).padStart(2, '0');
+			const formattedYear = String(selectedDate.getFullYear());
 
-		if (monthInput !== formattedMonth) monthInput = formattedMonth;
-		if (dayInput !== formattedDay) dayInput = formattedDay;
-		if (yearInput !== formattedYear) yearInput = formattedYear;
-	}
+			if (monthInput !== formattedMonth) monthInput = formattedMonth;
+			if (dayInput !== formattedDay) dayInput = formattedDay;
+			if (yearInput !== formattedYear) yearInput = formattedYear;
+		}
+	});
 
-	$: isValid = validateDate(monthInput, dayInput, yearInput);
+	let isValid = $derived(validateDate(monthInput, dayInput, yearInput));
 
 	function validateDate(monthString: string, dayString: string, yearString: string): boolean {
 		const monthNumber = Number(monthString);
@@ -71,15 +74,15 @@
 		return true;
 	}
 
-	function syncDateFromInputs() {
+	function syncDateFromInputs(): void {
 		if (validateDate(monthInput, dayInput, yearInput)) {
 			const candidateDate = new Date(Number(yearInput), Number(monthInput) - 1, Number(dayInput));
 			selectedDate = candidateDate;
-			dispatch('select', candidateDate);
+			onselect?.(candidateDate);
 		}
 	}
 
-	function handleMonthInput(event: Event) {
+	function handleMonthInput(event: Event): void {
 		const target = event.target as HTMLInputElement;
 		let value = target.value.replace(/\D/g, '');
 
@@ -102,7 +105,7 @@
 		syncDateFromInputs();
 	}
 
-	function handleDayInput(event: Event) {
+	function handleDayInput(event: Event): void {
 		const target = event.target as HTMLInputElement;
 		let value = target.value.replace(/\D/g, '');
 
@@ -125,7 +128,7 @@
 		syncDateFromInputs();
 	}
 
-	function handleYearInput(event: Event) {
+	function handleYearInput(event: Event): void {
 		const target = event.target as HTMLInputElement;
 		let value = target.value.replace(/\D/g, '');
 
@@ -139,29 +142,29 @@
 		syncDateFromInputs();
 	}
 
-	function handleDayKeydown(event: KeyboardEvent) {
+	function handleDayKeydown(event: KeyboardEvent): void {
 		if (event.key === 'Backspace' && !dayInput) {
 			monthInputElement?.focus();
-		} else if (event.key === 'ArrowLeft' && dayInputElement.selectionStart === 0) {
+		} else if (event.key === 'ArrowLeft' && dayInputElement?.selectionStart === 0) {
 			monthInputElement?.focus();
 		}
 	}
 
-	function handleYearKeydown(event: KeyboardEvent) {
+	function handleYearKeydown(event: KeyboardEvent): void {
 		if (event.key === 'Backspace' && !yearInput) {
 			dayInputElement?.focus();
-		} else if (event.key === 'ArrowLeft' && yearInputElement.selectionStart === 0) {
+		} else if (event.key === 'ArrowLeft' && yearInputElement?.selectionStart === 0) {
 			dayInputElement?.focus();
 		}
 	}
 
-	function handleMonthKeydown(event: KeyboardEvent) {
-		if (event.key === 'ArrowRight' && monthInputElement.selectionStart === monthInput.length) {
+	function handleMonthKeydown(event: KeyboardEvent): void {
+		if (event.key === 'ArrowRight' && monthInputElement?.selectionStart === monthInput.length) {
 			dayInputElement?.focus();
 		}
 	}
 
-	function handlePaste(event: ClipboardEvent) {
+	function handlePaste(event: ClipboardEvent): void {
 		const pasteData = event.clipboardData?.getData('text');
 		if (!pasteData) return;
 
@@ -181,32 +184,47 @@
 		}
 	}
 
-	function handleCalendarSelect(event: CustomEvent<Date>) {
-		const chosenDate = event.detail;
+	function handleCalendarSelect(chosenDate: Date): void {
 		selectedDate = chosenDate;
 		monthInput = String(chosenDate.getMonth() + 1).padStart(2, '0');
 		dayInput = String(chosenDate.getDate()).padStart(2, '0');
 		yearInput = String(chosenDate.getFullYear());
 
-		dispatch('select', chosenDate);
+		onselect?.(chosenDate);
 		showCalendar = false;
 	}
 
-	function toggleCalendar() {
+	function toggleCalendar(): void {
 		showCalendar = !showCalendar;
 	}
 
-	function closeCalendar() {
+	function closeCalendar(): void {
 		showCalendar = false;
 	}
 
-	function handleSubmit() {
-		if (isValid && selectedDate) {
-			dispatch('submit', selectedDate);
+	function handleSubmit(): void {
+		if (validateDate(monthInput, dayInput, yearInput)) {
+			const candidateDate =
+				selectedDate || new Date(Number(yearInput), Number(monthInput) - 1, Number(dayInput));
+			selectedDate = candidateDate;
+			if (document.activeElement instanceof HTMLElement) {
+				document.activeElement.blur();
+			}
+			window.scrollTo(0, 0);
+			onsubmit?.(candidateDate);
 		}
 	}
 
-	function handleClickOutside(event: MouseEvent) {
+	function handleBoxClick(event: MouseEvent): void {
+		const target = event.target as HTMLElement;
+		if (target.closest('button')) return;
+
+		if (typeof window !== 'undefined' && window.innerWidth < 768) {
+			showCalendar = true;
+		}
+	}
+
+	function handleClickOutside(event: MouseEvent): void {
 		const target = event.target as Element;
 		if (
 			showCalendar &&
@@ -218,7 +236,7 @@
 	}
 
 	onMount(() => {
-		function handleGlobalKeydown(event: KeyboardEvent) {
+		function handleGlobalKeydown(event: KeyboardEvent): void {
 			if (event.key === 'Escape' && showCalendar) {
 				closeCalendar();
 			}
@@ -259,8 +277,11 @@
 					When were you born?
 				</label>
 
+				<!-- svelte-ignore a11y_click_events_have_key_events -->
+				<!-- svelte-ignore a11y_no_static_element_interactions -->
 				<div
-					class="relative flex items-center justify-between rounded-xl border border-neutral-700 bg-neutral-900/90 px-3 py-2.5 shadow-inner transition-colors focus-within:border-neutral-400 focus-within:ring-1 focus-within:ring-neutral-400"
+					class="relative flex items-center justify-between rounded-xl border border-neutral-700 bg-neutral-900/90 px-3 py-2.5 shadow-inner transition-colors focus-within:border-neutral-400 focus-within:ring-1 focus-within:ring-neutral-400 cursor-pointer md:cursor-default"
+					onclick={handleBoxClick}
 				>
 					<div class="flex flex-1 items-center gap-1.5 font-mono text-base sm:gap-2 sm:text-lg">
 						<input
@@ -272,9 +293,9 @@
 							maxlength={2}
 							placeholder="MM"
 							value={monthInput}
-							on:input={handleMonthInput}
-							on:keydown={handleMonthKeydown}
-							on:paste={handlePaste}
+							oninput={handleMonthInput}
+							onkeydown={handleMonthKeydown}
+							onpaste={handlePaste}
 							class="w-11 rounded-lg bg-transparent py-1 text-center text-neutral-100 placeholder-neutral-500 transition-colors focus:bg-neutral-800/80 focus:outline-none sm:w-12"
 							aria-label="Two digit birth month"
 						/>
@@ -287,9 +308,9 @@
 							maxlength={2}
 							placeholder="DD"
 							value={dayInput}
-							on:input={handleDayInput}
-							on:keydown={handleDayKeydown}
-							on:paste={handlePaste}
+							oninput={handleDayInput}
+							onkeydown={handleDayKeydown}
+							onpaste={handlePaste}
 							class="w-11 rounded-lg bg-transparent py-1 text-center text-neutral-100 placeholder-neutral-500 transition-colors focus:bg-neutral-800/80 focus:outline-none sm:w-12"
 							aria-label="Two digit birth day"
 						/>
@@ -302,9 +323,9 @@
 							maxlength={4}
 							placeholder="YYYY"
 							value={yearInput}
-							on:input={handleYearInput}
-							on:keydown={handleYearKeydown}
-							on:paste={handlePaste}
+							oninput={handleYearInput}
+							onkeydown={handleYearKeydown}
+							onpaste={handlePaste}
 							class="w-16 rounded-lg bg-transparent py-1 text-center text-neutral-100 placeholder-neutral-500 transition-colors focus:bg-neutral-800/80 focus:outline-none sm:w-20"
 							aria-label="Four digit birth year"
 						/>
@@ -312,7 +333,10 @@
 
 					<button
 						type="button"
-						on:click|stopPropagation={toggleCalendar}
+						onclick={(event) => {
+							event.stopPropagation();
+							toggleCalendar();
+						}}
 						class="touch-manipulation rounded-lg p-2 text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-white"
 						aria-label="Open calendar picker"
 					>
@@ -327,13 +351,12 @@
 					</button>
 				</div>
 
-				<!-- Desktop Popover Calendar -->
 				{#if showCalendar}
-					<div class="absolute top-full right-0 left-0 z-40 mt-2 hidden sm:block">
+					<div class="absolute top-full right-0 left-0 z-40 mt-2 hidden md:block">
 						<CustomCalendar
 							{selectedDate}
-							on:select={handleCalendarSelect}
-							on:close={closeCalendar}
+							onselect={handleCalendarSelect}
+							onclose={closeCalendar}
 						/>
 					</div>
 				{/if}
@@ -341,7 +364,7 @@
 
 			<button
 				type="button"
-				on:click={handleSubmit}
+				onclick={handleSubmit}
 				disabled={!isValid}
 				class="w-full touch-manipulation rounded-xl bg-neutral-100 px-6 py-3.5 font-medium text-neutral-900 transition-all duration-200 hover:bg-white hover:shadow-lg disabled:cursor-not-allowed disabled:bg-neutral-800 disabled:text-neutral-500"
 			>
@@ -357,10 +380,9 @@
 	</div>
 </div>
 
-<!-- Mobile Drawer / Bottom Sheet Calendar -->
 {#if showCalendar}
 	<div
-		class="mobile-calendar-drawer fixed inset-0 z-50 flex flex-col justify-end sm:hidden"
+		class="mobile-calendar-drawer fixed inset-0 z-50 flex flex-col justify-end md:hidden"
 		role="dialog"
 		aria-modal="true"
 		aria-label="Select birth date"
@@ -368,7 +390,7 @@
 		<button
 			type="button"
 			class="fixed inset-0 cursor-default border-0 bg-black/75 backdrop-blur-sm"
-			on:click={closeCalendar}
+			onclick={closeCalendar}
 			aria-label="Close calendar backdrop"
 		></button>
 		<div
@@ -380,7 +402,7 @@
 				<span class="text-sm font-medium text-neutral-300">Choose your birth date</span>
 				<button
 					type="button"
-					on:click={closeCalendar}
+					onclick={closeCalendar}
 					class="rounded-md bg-neutral-800 px-2.5 py-1 text-xs font-medium text-neutral-400 hover:text-white"
 				>
 					Done
@@ -390,8 +412,8 @@
 			<CustomCalendar
 				{selectedDate}
 				isMobileModal={true}
-				on:select={handleCalendarSelect}
-				on:close={closeCalendar}
+				onselect={handleCalendarSelect}
+				onclose={closeCalendar}
 			/>
 		</div>
 	</div>

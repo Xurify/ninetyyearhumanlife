@@ -1,7 +1,11 @@
 <script lang="ts">
-	export let value: string | number;
-	export let label: string;
-	export let size: 'sm' | 'md' | 'lg' = 'md';
+	interface Props {
+		value: string | number;
+		label: string;
+		size?: 'sm' | 'md' | 'lg';
+	}
+
+	let { value, label, size = 'md' }: Props = $props();
 </script>
 
 <div class="flex-1 rounded-lg border border-neutral-800 bg-neutral-900/50 p-6 text-center">

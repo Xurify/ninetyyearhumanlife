@@ -1,5 +1,9 @@
 <script lang="ts">
-	export let monthsLived: number = 0;
+	interface Props {
+		monthsLived?: number;
+	}
+
+	let { monthsLived = 0 }: Props = $props();
 
 	const totalMonths: number = 1080;
 </script>

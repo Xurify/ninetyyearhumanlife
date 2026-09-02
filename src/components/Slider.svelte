@@ -2,19 +2,23 @@
 	import { useSoundEffect } from '$lib/audio';
 	import { SOUND_EFFECTS } from '$lib/constants';
 
-	export let label: string = '';
-	export let value: number = 50;
-	export let name: string = '';
-	export let min: number = 0;
-	export let max: number = 100;
+	interface Props {
+		label?: string;
+		value?: number;
+		name?: string;
+		min?: number;
+		max?: number;
+	}
 
-	let isDragging = false;
-	let sliderContainer: HTMLDivElement;
-	let previousValue = value;
+	let { label = '', value = $bindable(50), name = '', min = 0, max = 100 }: Props = $props();
+
+	let isDragging = $state(false);
+	let sliderContainer = $state<HTMLDivElement>();
+	let previousValue = $state(value);
 
 	const { playSound } = useSoundEffect(SOUND_EFFECTS.DIGITAL_POP);
 
-	function handleMouseDown(event: MouseEvent) {
+	function handleMouseDown(event: MouseEvent): void {
 		isDragging = true;
 		updateValue(event);
 		playSound();
@@ -22,19 +26,19 @@
 		window.addEventListener('mouseup', handleMouseUp);
 	}
 
-	function handleMouseMove(event: MouseEvent) {
+	function handleMouseMove(event: MouseEvent): void {
 		if (isDragging) {
 			updateValue(event);
 		}
 	}
 
-	function handleMouseUp() {
+	function handleMouseUp(): void {
 		isDragging = false;
 		window.removeEventListener('mousemove', handleMouseMove);
 		window.removeEventListener('mouseup', handleMouseUp);
 	}
 
-	function handleTouchStart(event: TouchEvent) {
+	function handleTouchStart(event: TouchEvent): void {
 		isDragging = true;
 		updateValueFromTouch(event);
 		playSound();
@@ -42,25 +46,25 @@
 		window.addEventListener('touchend', handleTouchEnd);
 	}
 
-	function handleTouchMove(event: TouchEvent) {
+	function handleTouchMove(event: TouchEvent): void {
 		if (isDragging) {
 			updateValueFromTouch(event);
 		}
 	}
 
-	function handleTouchEnd() {
+	function handleTouchEnd(): void {
 		isDragging = false;
 		window.removeEventListener('touchmove', handleTouchMove);
 		window.removeEventListener('touchend', handleTouchEnd);
 	}
 
-	function updateValueFromTouch(event: TouchEvent) {
-		if (event.touches.length > 0) {
+	function updateValueFromTouch(event: TouchEvent): void {
+		if (event.touches.length > 0 && sliderContainer) {
 			const touch = event.touches[0];
 			const rect = sliderContainer.getBoundingClientRect();
 			const x = Math.max(0, Math.min(touch.clientX - rect.left, rect.width));
-			const percentage = x / rect.width;
-			const newValue = Math.round(min + percentage * (max - min));
+			const percentageNumber = x / rect.width;
+			const newValue = Math.round(min + percentageNumber * (max - min));
 
 			if (newValue !== value) {
 				value = newValue;
@@ -69,26 +73,30 @@
 		}
 	}
 
-	function updateValue(event: MouseEvent) {
-		const rect = sliderContainer.getBoundingClientRect();
-		const x = Math.max(0, Math.min(event.clientX - rect.left, rect.width));
-		const percentage = x / rect.width;
-		const newValue = Math.round(min + percentage * (max - min));
+	function updateValue(event: MouseEvent): void {
+		if (sliderContainer) {
+			const rect = sliderContainer.getBoundingClientRect();
+			const x = Math.max(0, Math.min(event.clientX - rect.left, rect.width));
+			const percentageNumber = x / rect.width;
+			const newValue = Math.round(min + percentageNumber * (max - min));
 
-		if (newValue !== value) {
-			value = newValue;
-			playSound();
+			if (newValue !== value) {
+				value = newValue;
+				playSound();
+			}
 		}
 	}
 
-	$: if (value !== previousValue && !isDragging) {
-		playSound();
-		previousValue = value;
-	}
+	$effect(() => {
+		if (value !== previousValue && !isDragging) {
+			playSound();
+			previousValue = value;
+		}
+	});
 
-	$: percentage = ((value - min) / (max - min)) * 100;
-	$: thumbPosition = `${percentage}%`;
-	$: fillWidth = `${percentage}%`;
+	let percentage = $derived(((value - min) / (max - min)) * 100);
+	let thumbPosition = $derived(`${percentage}%`);
+	let fillWidth = $derived(`${percentage}%`);
 </script>
 
 <fieldset class="group flex items-center justify-between gap-3">
@@ -105,8 +113,8 @@
 			<div
 				class="group w-full touch-none transition-[margin] select-none hover:cursor-grab active:cursor-grabbing"
 				bind:this={sliderContainer}
-				on:mousedown={handleMouseDown}
-				on:touchstart={handleTouchStart}
+				onmousedown={handleMouseDown}
+				ontouchstart={handleTouchStart}
 				role="slider"
 				aria-valuemin={min}
 				aria-valuemax={max}
@@ -122,7 +130,7 @@
 						<div
 							class="absolute h-7 rounded-md rounded-tr-none rounded-br-none bg-white/10 transition-colors duration-200 ease-out group-hover:bg-white/20 dark:bg-white/10"
 							style="width: {fillWidth}"
-						/>
+						></div>
 					</div>
 					<div
 						class="absolute block h-7 w-3 rounded-[3px] bg-[#bdbdbd] outline-hidden transition-[height] group-hover:bg-[#ededed] dark:bg-[#dcdcdc]"
@@ -133,7 +141,7 @@
 						aria-valuenow={value}
 						tabindex="0"
 						aria-label={label}
-					/>
+					></div>
 				</div>
 			</div>
 		</div>

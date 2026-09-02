@@ -1,13 +1,15 @@
 <script lang="ts">
 	import type { LifeData } from '../lib/weekCalculations';
 
-	export let lifeData: LifeData;
+	interface Props {
+		lifeData: LifeData;
+	}
 
-	// 36 months per row, 30 rows = 1080 months (90 years)
-	// Display as 36 columns (months per row) x 30 rows - shows full 90-year lifespan
+	let { lifeData }: Props = $props();
+
 	const monthsPerRow = 36;
 	const totalRows = 30;
-	const gridTotalMonths = totalRows * monthsPerRow; // 1080 months shown in grid
+	const gridTotalMonths = totalRows * monthsPerRow;
 
 	const rowIndices = Array.from({ length: totalRows }, function (_, index) {
 		return index;

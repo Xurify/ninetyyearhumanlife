@@ -1,23 +1,29 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
+	interface Props {
+		selectedDate?: Date | null;
+		isMobileModal?: boolean;
+		onselect?: (date: Date) => void;
+		onclose?: () => void;
+	}
 
-	export let selectedDate: Date | null = null;
-	export let isMobileModal = false;
-
-	const dispatch = createEventDispatcher<{
-		select: Date;
-		close: void;
-	}>();
+	let { selectedDate = null, isMobileModal = false, onselect, onclose }: Props = $props();
 
 	const today = new Date();
 	const currentYear = today.getFullYear();
 	const currentMonth = today.getMonth();
 	const currentDay = today.getDate();
 
-	let activeView: 'days' | 'months' | 'years' = 'days';
+	let activeView: 'days' | 'months' | 'years' = $state('days');
 
-	let viewingYear = selectedDate ? selectedDate.getFullYear() : currentYear - 25;
-	let viewingMonth = selectedDate ? selectedDate.getMonth() : 0;
+	let viewingYear = $state(currentYear - 25);
+	let viewingMonth = $state(0);
+
+	$effect(() => {
+		if (selectedDate) {
+			viewingYear = selectedDate.getFullYear();
+			viewingMonth = selectedDate.getMonth();
+		}
+	});
 
 	const months = [
 		'January',
@@ -56,19 +62,23 @@
 		return currentYear - yearOffset;
 	});
 
-	$: daysInMonth = new Date(viewingYear, viewingMonth + 1, 0).getDate();
-	$: firstDayOfWeek = new Date(viewingYear, viewingMonth, 1).getDay();
+	let daysInMonth = $derived(new Date(viewingYear, viewingMonth + 1, 0).getDate());
+	let firstDayOfWeek = $derived(new Date(viewingYear, viewingMonth, 1).getDay());
 
-	$: emptyLeadingDays = Array.from({ length: firstDayOfWeek }, function (_, offset) {
-		const previousMonth = viewingMonth === 0 ? 11 : viewingMonth - 1;
-		const previousYear = viewingMonth === 0 ? viewingYear - 1 : viewingYear;
-		const daysInPreviousMonth = new Date(previousYear, previousMonth + 1, 0).getDate();
-		return daysInPreviousMonth - firstDayOfWeek + offset + 1;
-	});
+	let emptyLeadingDays = $derived(
+		Array.from({ length: firstDayOfWeek }, function (_, offset) {
+			const previousMonth = viewingMonth === 0 ? 11 : viewingMonth - 1;
+			const previousYear = viewingMonth === 0 ? viewingYear - 1 : viewingYear;
+			const daysInPreviousMonth = new Date(previousYear, previousMonth + 1, 0).getDate();
+			return daysInPreviousMonth - firstDayOfWeek + offset + 1;
+		})
+	);
 
-	$: monthDaysList = Array.from({ length: daysInMonth }, function (_, offset) {
-		return offset + 1;
-	});
+	let monthDaysList = $derived(
+		Array.from({ length: daysInMonth }, function (_, offset) {
+			return offset + 1;
+		})
+	);
 
 	function isFutureDate(day: number): boolean {
 		if (viewingYear > currentYear) return true;
@@ -92,13 +102,13 @@
 		return viewingYear === currentYear && viewingMonth === currentMonth && day === currentDay;
 	}
 
-	function handleDayClick(day: number) {
+	function handleDayClick(day: number): void {
 		if (isFutureDate(day)) return;
 		const date = new Date(viewingYear, viewingMonth, day);
-		dispatch('select', date);
+		onselect?.(date);
 	}
 
-	function handleMonthSelect(monthIndex: number) {
+	function handleMonthSelect(monthIndex: number): void {
 		if (viewingYear === currentYear && monthIndex > currentMonth) {
 			return;
 		}
@@ -106,7 +116,7 @@
 		activeView = 'days';
 	}
 
-	function handleYearSelect(year: number) {
+	function handleYearSelect(year: number): void {
 		viewingYear = year;
 		if (viewingYear === currentYear && viewingMonth > currentMonth) {
 			viewingMonth = currentMonth;
@@ -114,7 +124,7 @@
 		activeView = 'months';
 	}
 
-	function previousMonth() {
+	function previousMonth(): void {
 		if (viewingMonth === 0) {
 			viewingMonth = 11;
 			viewingYear -= 1;
@@ -123,7 +133,7 @@
 		}
 	}
 
-	function nextMonth() {
+	function nextMonth(): void {
 		if (
 			viewingYear > currentYear ||
 			(viewingYear === currentYear && viewingMonth >= currentMonth)
@@ -138,8 +148,8 @@
 		}
 	}
 
-	function handleClose() {
-		dispatch('close');
+	function handleClose(): void {
+		onclose?.();
 	}
 </script>
 
@@ -150,7 +160,7 @@
 		<div class="flex items-center gap-1.5">
 			<button
 				type="button"
-				on:click={() => (activeView = activeView === 'months' ? 'days' : 'months')}
+				onclick={() => (activeView = activeView === 'months' ? 'days' : 'months')}
 				class="rounded-lg px-2.5 py-1.5 text-sm font-medium transition-colors {activeView ===
 				'months'
 					? 'bg-neutral-800 text-white shadow-sm'
@@ -162,7 +172,7 @@
 
 			<button
 				type="button"
-				on:click={() => (activeView = activeView === 'years' ? 'days' : 'years')}
+				onclick={() => (activeView = activeView === 'years' ? 'days' : 'years')}
 				class="rounded-lg px-2.5 py-1.5 text-sm font-medium transition-colors {activeView ===
 				'years'
 					? 'bg-neutral-800 text-white shadow-sm'
@@ -177,7 +187,7 @@
 			{#if activeView === 'days'}
 				<button
 					type="button"
-					on:click={previousMonth}
+					onclick={previousMonth}
 					class="touch-manipulation rounded-lg p-2 text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-neutral-100"
 					aria-label="Previous month"
 				>
@@ -193,7 +203,7 @@
 
 				<button
 					type="button"
-					on:click={nextMonth}
+					onclick={nextMonth}
 					disabled={viewingYear >= currentYear && viewingMonth >= currentMonth}
 					class="touch-manipulation rounded-lg p-2 transition-colors {viewingYear >= currentYear &&
 					viewingMonth >= currentMonth
@@ -213,7 +223,7 @@
 			{:else}
 				<button
 					type="button"
-					on:click={() => (activeView = 'days')}
+					onclick={() => (activeView = 'days')}
 					class="rounded-md bg-neutral-800/80 px-2 py-1 text-xs text-neutral-400 transition-colors hover:text-white"
 				>
 					Calendar
@@ -223,7 +233,7 @@
 			{#if isMobileModal}
 				<button
 					type="button"
-					on:click={handleClose}
+					onclick={handleClose}
 					class="ml-1 touch-manipulation rounded-lg p-2 text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-neutral-100"
 					aria-label="Close calendar"
 				>
@@ -264,7 +274,7 @@
 				{@const current = isToday(day)}
 				<button
 					type="button"
-					on:click={() => handleDayClick(day)}
+					onclick={() => handleDayClick(day)}
 					disabled={future}
 					class="flex h-10 touch-manipulation items-center justify-center rounded-xl text-sm font-medium transition-all duration-150 sm:h-9 {selected
 						? 'scale-105 bg-neutral-100 font-semibold text-neutral-900 shadow-md'
@@ -285,7 +295,7 @@
 				{@const isCurrentMonth = viewingMonth === monthIndex}
 				<button
 					type="button"
-					on:click={() => handleMonthSelect(monthIndex)}
+					onclick={() => handleMonthSelect(monthIndex)}
 					{disabled}
 					class="touch-manipulation rounded-xl px-2 py-3 text-sm font-medium transition-all duration-150 {isCurrentMonth
 						? 'bg-neutral-100 font-semibold text-neutral-900 shadow-md'
@@ -303,7 +313,7 @@
 				{@const isCurrentYear = viewingYear === year}
 				<button
 					type="button"
-					on:click={() => handleYearSelect(year)}
+					onclick={() => handleYearSelect(year)}
 					class="touch-manipulation rounded-xl px-1 py-2.5 text-xs font-medium transition-all duration-150 sm:text-sm {isCurrentYear
 						? 'bg-neutral-100 font-semibold text-neutral-900 shadow-md'
 						: 'bg-neutral-800/50 text-neutral-200 hover:bg-neutral-800 hover:text-white active:scale-95'}"

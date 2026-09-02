@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { useSoundEffect } from '$lib/audio';
 	import { SOUND_EFFECTS } from '$lib/constants';
-	
+
 	export let label: string = '';
 	export let value: number = 50;
 	export let name: string = '';
@@ -11,7 +11,7 @@
 	let isDragging = false;
 	let sliderContainer: HTMLDivElement;
 	let previousValue = value;
-	
+
 	const { playSound } = useSoundEffect(SOUND_EFFECTS.DIGITAL_POP);
 
 	function handleMouseDown(event: MouseEvent) {
@@ -61,7 +61,7 @@
 			const x = Math.max(0, Math.min(touch.clientX - rect.left, rect.width));
 			const percentage = x / rect.width;
 			const newValue = Math.round(min + percentage * (max - min));
-			
+
 			if (newValue !== value) {
 				value = newValue;
 				playSound();
@@ -74,7 +74,7 @@
 		const x = Math.max(0, Math.min(event.clientX - rect.left, rect.width));
 		const percentage = x / rect.width;
 		const newValue = Math.round(min + percentage * (max - min));
-		
+
 		if (newValue !== value) {
 			value = newValue;
 			playSound();
@@ -92,18 +92,18 @@
 </script>
 
 <fieldset class="group flex items-center justify-between gap-3">
-	<label class="select-none font-normal" for={name}>
+	<label class="font-normal select-none" for={name}>
 		{label}
 	</label>
 	<div class="w-3/5">
 		<div class="flex grow items-center gap-2">
 			<div
-				class="dark:bg-dark-supertransparent flex h-7 w-12 items-center justify-center rounded-md border border-white/20 bg-white/5 text-[13px] mr-1"
+				class="dark:bg-dark-supertransparent mr-1 flex h-7 w-12 items-center justify-center rounded-md border border-white/20 bg-white/5 text-[13px]"
 			>
 				{value}
 			</div>
 			<div
-				class="group w-full touch-none select-none transition-[margin] hover:cursor-grab active:cursor-grabbing"
+				class="group w-full touch-none transition-[margin] select-none hover:cursor-grab active:cursor-grabbing"
 				bind:this={sliderContainer}
 				on:mousedown={handleMouseDown}
 				on:touchstart={handleTouchStart}
@@ -120,7 +120,7 @@
 						class="dark:bg-dark-supertransparent h-7 w-full grow overflow-hidden rounded-md bg-white/5"
 					>
 						<div
-							class="absolute h-7 rounded-md rounded-br-none rounded-tr-none bg-white/10 transition-colors duration-200 ease-out group-hover:bg-white/20 dark:bg-white/10"
+							class="absolute h-7 rounded-md rounded-tr-none rounded-br-none bg-white/10 transition-colors duration-200 ease-out group-hover:bg-white/20 dark:bg-white/10"
 							style="width: {fillWidth}"
 						/>
 					</div>

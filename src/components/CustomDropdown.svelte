@@ -11,7 +11,7 @@
 	let isOpen = false;
 	let scrollContainer: HTMLDivElement;
 
-	$: selectedOption = options.find(option => option === value) || value;
+	$: selectedOption = options.find((option) => option === value) || value;
 
 	function toggleDropdown() {
 		isOpen = !isOpen;
@@ -23,7 +23,7 @@
 	function scrollToSelected() {
 		if (!scrollContainer || !selectedOption) return;
 
-		const selectedIndex = options.findIndex(option => option === selectedOption);
+		const selectedIndex = options.findIndex((option) => option === selectedOption);
 		if (selectedIndex >= 0) {
 			const itemHeight = 40;
 			const scrollTop = selectedIndex * itemHeight - 80;
@@ -57,7 +57,6 @@
 			document.removeEventListener('click', handleClickOutside);
 		}
 	}
-
 </script>
 
 <svelte:window on:keydown={handleKeydown} />
@@ -66,15 +65,17 @@
 	<button
 		type="button"
 		on:click={toggleDropdown}
-		class="w-full bg-neutral-700 text-neutral-100 rounded px-2 sm:px-3 py-2 sm:py-2 text-xs sm:text-sm border border-neutral-600 focus:border-neutral-400 focus:outline-none transition-colors flex items-center justify-between hover:bg-neutral-650 touch-manipulation"
+		class="hover:bg-neutral-650 flex w-full touch-manipulation items-center justify-between rounded border border-neutral-600 bg-neutral-700 px-2 py-2 text-xs text-neutral-100 transition-colors focus:border-neutral-400 focus:outline-none sm:px-3 sm:py-2 sm:text-sm"
 	>
 		<span class="truncate">
 			{selectedOption || placeholder}
 		</span>
-		<svg 
-			class="w-4 h-4 text-neutral-400 transition-transform duration-200 {isOpen ? 'rotate-180' : ''}" 
-			fill="none" 
-			stroke="currentColor" 
+		<svg
+			class="h-4 w-4 text-neutral-400 transition-transform duration-200 {isOpen
+				? 'rotate-180'
+				: ''}"
+			fill="none"
+			stroke="currentColor"
 			viewBox="0 0 24 24"
 		>
 			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -83,7 +84,7 @@
 
 	{#if isOpen}
 		<div
-			class="absolute top-full left-0 right-0 z-50 mt-1 bg-neutral-700 border border-neutral-600 rounded-lg shadow-xl overflow-hidden"
+			class="absolute top-full right-0 left-0 z-50 mt-1 overflow-hidden rounded-lg border border-neutral-600 bg-neutral-700 shadow-xl"
 			style="max-height: {maxHeight};"
 		>
 			<div class="overflow-y-auto" style="max-height: {maxHeight};" bind:this={scrollContainer}>
@@ -91,7 +92,7 @@
 					<button
 						type="button"
 						on:click|stopPropagation={() => selectOption(option)}
-						class="w-full px-3 py-2 text-sm text-left text-neutral-100 hover:bg-neutral-600 transition-colors block
+						class="block w-full px-3 py-2 text-left text-sm text-neutral-100 transition-colors hover:bg-neutral-600
 							{option === selectedOption ? 'bg-neutral-600' : ''}"
 					>
 						{option}

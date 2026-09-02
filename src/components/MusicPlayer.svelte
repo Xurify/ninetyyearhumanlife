@@ -15,7 +15,6 @@
 		audio.volume = volume;
 
 		audio.addEventListener('ended', () => {
-			isPlaying = false;
 			nextTrack();
 		});
 
@@ -38,9 +37,11 @@
 	}
 
 	function nextTrack() {
-		currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
+		const nextIndex = (currentTrackIndex + 1) % tracks.length;
+		currentTrackIndex = nextIndex;
+		const nextTrackData = tracks[nextIndex];
 		if (audio) {
-			audio.src = currentTrack.url;
+			audio.src = nextTrackData.url;
 			if (isPlaying) {
 				audio.play();
 			}
@@ -56,12 +57,14 @@
 	}
 </script>
 
-<div class="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 transform md:right-2 md:top-6 md:left-auto md:bottom-auto md:translate-x-0">
+<div
+	class="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 transform md:top-4 md:right-4 md:bottom-auto md:left-auto md:translate-x-0"
+>
 	<div
-		class="relative rounded-lg border border-neutral-700 bg-neutral-900/95 px-3 py-2 shadow-lg backdrop-blur-md md:px-4 md:py-3"
+		class="relative w-[15rem] rounded-lg border border-neutral-700 bg-neutral-900/95 px-3 py-2 shadow-lg backdrop-blur-md sm:w-[19rem] md:w-[23rem] md:px-4 md:py-3"
 	>
 		<div class="flex items-center gap-2 md:gap-3">
-			<div class="hidden min-w-0 sm:flex sm:flex-col">
+			<div class="hidden min-w-0 flex-1 sm:flex sm:flex-col">
 				<div class="truncate text-xs font-medium text-neutral-200">{currentTrack.title}</div>
 				<div class="truncate text-xs text-neutral-500">Ambient Music</div>
 			</div>

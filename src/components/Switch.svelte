@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { useSoundEffect } from '$lib/audio';
 	import { SOUND_EFFECTS } from '$lib/constants';
-	
+
 	export let label: string = '';
 	export let checked: boolean = false;
 	export let name: string = '';
@@ -31,7 +31,7 @@
 	>
 		<span
 			data-state={checked ? 'checked' : 'unchecked'}
-			class="pointer-events-none block h-4 w-4 rounded-full bg-[#bdbdbd] ring-0 shadow-lg transition-transform group-hover:bg-[#ededed] data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0 dark:bg-[#dcdcdc]"
+			class="pointer-events-none block h-4 w-4 rounded-full bg-[#bdbdbd] shadow-lg ring-0 transition-transform group-hover:bg-[#ededed] data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0 dark:bg-[#dcdcdc]"
 		></span>
 	</button>
 	<label

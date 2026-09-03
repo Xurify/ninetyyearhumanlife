@@ -287,7 +287,7 @@
 		showCalendar = false;
 	}
 
-	function handleSubmit(): void {
+	async function handleSubmit(): Promise<void> {
 		if (validateDate(monthInput, dayInput, yearInput)) {
 			const candidateDate =
 				selectedDate || new Date(Number(yearInput), Number(monthInput) - 1, Number(dayInput));
@@ -296,7 +296,11 @@
 				document.activeElement.blur();
 			}
 			window.scrollTo(0, 0);
-			onsubmit?.(candidateDate);
+			if (typeof window !== 'undefined' && window.innerWidth < 768) {
+				await new Promise((resolve) => setTimeout(resolve, 150));
+			}
+			window.scrollTo(0, 0);
+			await onsubmit?.(candidateDate);
 		}
 	}
 

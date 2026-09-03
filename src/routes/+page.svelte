@@ -23,7 +23,7 @@
 		}
 
 		const resetScroll = (): void => {
-			window.scrollTo(0, 0);
+			window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
 			if (document.documentElement) {
 				document.documentElement.scrollTop = 0;
 			}
@@ -33,7 +33,11 @@
 			if (document.scrollingElement) {
 				document.scrollingElement.scrollTop = 0;
 			}
-			topAnchor?.scrollIntoView(true);
+			if (stepContainer) {
+				stepContainer.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'instant' });
+			} else {
+				topAnchor?.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'instant' });
+			}
 		};
 
 		resetScroll();
@@ -54,7 +58,7 @@
 			setTimeout(() => {
 				viewport.removeEventListener('resize', handleViewportChange);
 				viewport.removeEventListener('scroll', handleViewportChange);
-			}, 600);
+			}, 750);
 		}
 	}
 
@@ -88,7 +92,7 @@
 				document.activeElement.blur();
 			}
 
-			window.scrollTo(0, 0);
+			window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
 			if (document.documentElement) {
 				document.documentElement.scrollTop = 0;
 			}
@@ -100,6 +104,9 @@
 			lifeData = calculateLifeData(targetDate);
 			currentStep = 2;
 
+			await tick();
+			forceScrollToTop();
+
 			const dateParam = [
 				targetDate.getFullYear(),
 				String(targetDate.getMonth() + 1).padStart(2, '0'),
@@ -109,9 +116,6 @@
 			url.searchParams.set('birth_date', dateParam);
 
 			window.history.replaceState(null, '', url.toString());
-
-			await tick();
-			forceScrollToTop();
 		}
 	}
 
@@ -120,7 +124,7 @@
 			document.activeElement.blur();
 		}
 
-		window.scrollTo(0, 0);
+		window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
 		if (document.documentElement) {
 			document.documentElement.scrollTop = 0;
 		}

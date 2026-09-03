@@ -9,7 +9,7 @@ declare global {
 		// interface Platform {}
 	}
 	interface Window {
-		webkitAudioContext: typeof AudioContext;
+		webkitAudioContext?: typeof AudioContext;
 	}
 }
 

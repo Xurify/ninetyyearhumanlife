@@ -13,7 +13,7 @@
 	let { label = '', value = $bindable(50), name = '', min = 0, max = 100 }: Props = $props();
 
 	let isDragging = $state(false);
-	let sliderContainer = $state<HTMLDivElement>();
+	let sliderContainer = $state<HTMLDivElement | null>(null);
 	let previousValue = $state(value);
 
 	const { playSound } = useSoundEffect(SOUND_EFFECTS.DIGITAL_POP);

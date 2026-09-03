@@ -2,16 +2,24 @@
 	import { onMount } from 'svelte';
 	import { MUSIC_TRACKS } from '$lib/constants';
 
-	let audio = $state<HTMLAudioElement>();
+	interface Track {
+		title: string;
+		url: string;
+	}
+
+	let audio = $state<HTMLAudioElement | null>(null);
 	let isPlaying = $state(false);
 	let volume = $state(0.15);
 	let currentTrackIndex = $state(0);
 
-	const tracks = Object.values(MUSIC_TRACKS);
-	let currentTrack = $derived(tracks[currentTrackIndex]);
+	const tracks: Track[] = Object.values(MUSIC_TRACKS);
+	let currentTrack = $derived(tracks[currentTrackIndex] ?? tracks[0]);
 
 	onMount(() => {
-		audio = new Audio(currentTrack.url);
+		const track = currentTrack;
+		if (!track) return;
+
+		audio = new Audio(track.url);
 		audio.volume = volume;
 
 		audio.addEventListener('ended', () => {
@@ -47,7 +55,7 @@
 		const nextIndex = (currentTrackIndex + 1) % tracks.length;
 		currentTrackIndex = nextIndex;
 		const nextTrackData = tracks[nextIndex];
-		if (audio) {
+		if (audio && nextTrackData) {
 			audio.src = nextTrackData.url;
 			if (isPlaying) {
 				audio.play().catch((error: unknown) => {
@@ -59,10 +67,12 @@
 	}
 
 	function handleVolumeChange(event: Event): void {
-		const target = event.target as HTMLInputElement;
-		volume = parseFloat(target.value);
-		if (audio) {
-			audio.volume = volume;
+		const target = event.currentTarget;
+		if (target instanceof HTMLInputElement) {
+			volume = parseFloat(target.value);
+			if (audio) {
+				audio.volume = volume;
+			}
 		}
 	}
 </script>

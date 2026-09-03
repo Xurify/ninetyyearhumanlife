@@ -1,24 +1,26 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import CustomCalendar from './CustomCalendar.svelte';
+	import { getLocaleDateOrder, type DateOrder } from '$lib/date';
 
 	interface Props {
 		selectedDate?: Date | null;
 		onselect?: (date: Date) => void;
-		onsubmit?: (date: Date) => void;
+		onsubmit?: (date: Date) => void | Promise<void>;
 	}
 
 	let { selectedDate = $bindable(null), onselect, onsubmit }: Props = $props();
 
 	let showCalendar = $state(false);
+	let dateOrder = $state<DateOrder>(getLocaleDateOrder());
 
 	let monthInput = $state('');
 	let dayInput = $state('');
 	let yearInput = $state('');
 
-	let monthInputElement = $state<HTMLInputElement>();
-	let dayInputElement = $state<HTMLInputElement>();
-	let yearInputElement = $state<HTMLInputElement>();
+	let monthInputElement = $state<HTMLInputElement | null>(null);
+	let dayInputElement = $state<HTMLInputElement | null>(null);
+	let yearInputElement = $state<HTMLInputElement | null>(null);
 
 	const today = new Date();
 	const currentYear = today.getFullYear();
@@ -82,8 +84,59 @@
 		}
 	}
 
+	function focusNext(current: 'day' | 'month' | 'year'): void {
+		if (dateOrder === 'DMY') {
+			if (current === 'day') {
+				monthInputElement?.focus();
+				monthInputElement?.select();
+			} else if (current === 'month') {
+				yearInputElement?.focus();
+				yearInputElement?.select();
+			}
+		} else if (dateOrder === 'MDY') {
+			if (current === 'month') {
+				dayInputElement?.focus();
+				dayInputElement?.select();
+			} else if (current === 'day') {
+				yearInputElement?.focus();
+				yearInputElement?.select();
+			}
+		} else if (dateOrder === 'YMD') {
+			if (current === 'year') {
+				monthInputElement?.focus();
+				monthInputElement?.select();
+			} else if (current === 'month') {
+				dayInputElement?.focus();
+				dayInputElement?.select();
+			}
+		}
+	}
+
+	function focusPrevious(current: 'day' | 'month' | 'year'): void {
+		if (dateOrder === 'DMY') {
+			if (current === 'year') {
+				monthInputElement?.focus();
+			} else if (current === 'month') {
+				dayInputElement?.focus();
+			}
+		} else if (dateOrder === 'MDY') {
+			if (current === 'year') {
+				dayInputElement?.focus();
+			} else if (current === 'day') {
+				monthInputElement?.focus();
+			}
+		} else if (dateOrder === 'YMD') {
+			if (current === 'day') {
+				monthInputElement?.focus();
+			} else if (current === 'month') {
+				yearInputElement?.focus();
+			}
+		}
+	}
+
 	function handleMonthInput(event: Event): void {
-		const target = event.target as HTMLInputElement;
+		const target = event.currentTarget;
+		if (!(target instanceof HTMLInputElement)) return;
 		let value = target.value.replace(/\D/g, '');
 
 		if (value.length > 2) {
@@ -98,15 +151,15 @@
 				monthInput = value.padStart(2, '0');
 				target.value = monthInput;
 			}
-			dayInputElement?.focus();
-			dayInputElement?.select();
+			focusNext('month');
 		}
 
 		syncDateFromInputs();
 	}
 
 	function handleDayInput(event: Event): void {
-		const target = event.target as HTMLInputElement;
+		const target = event.currentTarget;
+		if (!(target instanceof HTMLInputElement)) return;
 		let value = target.value.replace(/\D/g, '');
 
 		if (value.length > 2) {
@@ -121,15 +174,15 @@
 				dayInput = value.padStart(2, '0');
 				target.value = dayInput;
 			}
-			yearInputElement?.focus();
-			yearInputElement?.select();
+			focusNext('day');
 		}
 
 		syncDateFromInputs();
 	}
 
 	function handleYearInput(event: Event): void {
-		const target = event.target as HTMLInputElement;
+		const target = event.currentTarget;
+		if (!(target instanceof HTMLInputElement)) return;
 		let value = target.value.replace(/\D/g, '');
 
 		if (value.length > 4) {
@@ -139,28 +192,46 @@
 		yearInput = value;
 		target.value = value;
 
+		if (value.length === 4) {
+			focusNext('year');
+		}
+
 		syncDateFromInputs();
 	}
 
 	function handleDayKeydown(event: KeyboardEvent): void {
 		if (event.key === 'Backspace' && !dayInput) {
-			monthInputElement?.focus();
+			focusPrevious('day');
 		} else if (event.key === 'ArrowLeft' && dayInputElement?.selectionStart === 0) {
-			monthInputElement?.focus();
+			focusPrevious('day');
+		} else if (event.key === 'ArrowRight' && dayInputElement?.selectionStart === dayInput.length) {
+			focusNext('day');
+		}
+	}
+
+	function handleMonthKeydown(event: KeyboardEvent): void {
+		if (event.key === 'Backspace' && !monthInput) {
+			focusPrevious('month');
+		} else if (event.key === 'ArrowLeft' && monthInputElement?.selectionStart === 0) {
+			focusPrevious('month');
+		} else if (
+			event.key === 'ArrowRight' &&
+			monthInputElement?.selectionStart === monthInput.length
+		) {
+			focusNext('month');
 		}
 	}
 
 	function handleYearKeydown(event: KeyboardEvent): void {
 		if (event.key === 'Backspace' && !yearInput) {
-			dayInputElement?.focus();
+			focusPrevious('year');
 		} else if (event.key === 'ArrowLeft' && yearInputElement?.selectionStart === 0) {
-			dayInputElement?.focus();
-		}
-	}
-
-	function handleMonthKeydown(event: KeyboardEvent): void {
-		if (event.key === 'ArrowRight' && monthInputElement?.selectionStart === monthInput.length) {
-			dayInputElement?.focus();
+			focusPrevious('year');
+		} else if (
+			event.key === 'ArrowRight' &&
+			yearInputElement?.selectionStart === yearInput.length
+		) {
+			focusNext('year');
 		}
 	}
 
@@ -175,10 +246,25 @@
 				yearInput = numbers[0];
 				monthInput = numbers[1].padStart(2, '0');
 				dayInput = numbers[2].padStart(2, '0');
-			} else {
-				monthInput = numbers[0].padStart(2, '0');
-				dayInput = numbers[1].padStart(2, '0');
+			} else if (numbers[2].length === 4) {
 				yearInput = numbers[2];
+				if (dateOrder === 'DMY') {
+					dayInput = numbers[0].padStart(2, '0');
+					monthInput = numbers[1].padStart(2, '0');
+				} else {
+					monthInput = numbers[0].padStart(2, '0');
+					dayInput = numbers[1].padStart(2, '0');
+				}
+			} else {
+				if (dateOrder === 'DMY') {
+					dayInput = numbers[0].padStart(2, '0');
+					monthInput = numbers[1].padStart(2, '0');
+					yearInput = numbers[2];
+				} else {
+					monthInput = numbers[0].padStart(2, '0');
+					dayInput = numbers[1].padStart(2, '0');
+					yearInput = numbers[2];
+				}
 			}
 			syncDateFromInputs();
 		}
@@ -191,7 +277,6 @@
 		yearInput = String(chosenDate.getFullYear());
 
 		onselect?.(chosenDate);
-		showCalendar = false;
 	}
 
 	function toggleCalendar(): void {
@@ -216,8 +301,9 @@
 	}
 
 	function handleBoxClick(event: MouseEvent): void {
-		const target = event.target as HTMLElement;
-		if (target.closest('button')) return;
+		const target = event.target;
+		if (!(target instanceof Element)) return;
+		if (target.closest('input') || target.closest('button')) return;
 
 		if (typeof window !== 'undefined' && window.innerWidth < 768) {
 			showCalendar = true;
@@ -225,7 +311,8 @@
 	}
 
 	function handleClickOutside(event: MouseEvent): void {
-		const target = event.target as Element;
+		const target = event.target;
+		if (!(target instanceof Element)) return;
 		if (
 			showCalendar &&
 			!target.closest('.calendar-picker-container') &&
@@ -236,6 +323,8 @@
 	}
 
 	onMount(() => {
+		dateOrder = getLocaleDateOrder();
+
 		function handleGlobalKeydown(event: KeyboardEvent): void {
 			if (event.key === 'Escape' && showCalendar) {
 				closeCalendar();
@@ -249,6 +338,60 @@
 		};
 	});
 </script>
+
+{#snippet dayInputSnippet()}
+	<input
+		id="day-input"
+		bind:this={dayInputElement}
+		type="text"
+		inputmode="numeric"
+		pattern="[0-9]*"
+		maxlength={2}
+		placeholder="DD"
+		value={dayInput}
+		oninput={handleDayInput}
+		onkeydown={handleDayKeydown}
+		onpaste={handlePaste}
+		class="w-11 rounded-lg bg-transparent py-1 text-center text-neutral-100 placeholder-neutral-500 transition-colors focus:bg-neutral-800/80 focus:outline-none sm:w-12 text-base sm:text-lg"
+		aria-label="Two digit birth day"
+	/>
+{/snippet}
+
+{#snippet monthInputSnippet()}
+	<input
+		id="month-input"
+		bind:this={monthInputElement}
+		type="text"
+		inputmode="numeric"
+		pattern="[0-9]*"
+		maxlength={2}
+		placeholder="MM"
+		value={monthInput}
+		oninput={handleMonthInput}
+		onkeydown={handleMonthKeydown}
+		onpaste={handlePaste}
+		class="w-11 rounded-lg bg-transparent py-1 text-center text-neutral-100 placeholder-neutral-500 transition-colors focus:bg-neutral-800/80 focus:outline-none sm:w-12 text-base sm:text-lg"
+		aria-label="Two digit birth month"
+	/>
+{/snippet}
+
+{#snippet yearInputSnippet()}
+	<input
+		id="year-input"
+		bind:this={yearInputElement}
+		type="text"
+		inputmode="numeric"
+		pattern="[0-9]*"
+		maxlength={4}
+		placeholder="YYYY"
+		value={yearInput}
+		oninput={handleYearInput}
+		onkeydown={handleYearKeydown}
+		onpaste={handlePaste}
+		class="w-16 rounded-lg bg-transparent py-1 text-center text-neutral-100 placeholder-neutral-500 transition-colors focus:bg-neutral-800/80 focus:outline-none sm:w-20 text-base sm:text-lg"
+		aria-label="Four digit birth year"
+	/>
+{/snippet}
 
 <div class="flex min-h-dvh flex-col items-center justify-center px-4 py-8">
 	<div class="w-full max-w-md space-y-8 text-center">
@@ -273,7 +416,14 @@
 
 		<div class="space-y-6 pt-4 sm:pt-6">
 			<div class="calendar-picker-container relative space-y-2">
-				<label for="month-input" class="block text-sm font-medium text-neutral-300">
+				<label
+					for={dateOrder === 'MDY'
+						? 'month-input'
+						: dateOrder === 'YMD'
+							? 'year-input'
+							: 'day-input'}
+					class="block text-sm font-medium text-neutral-300"
+				>
 					When were you born?
 				</label>
 
@@ -284,51 +434,25 @@
 					onclick={handleBoxClick}
 				>
 					<div class="flex flex-1 items-center gap-1.5 font-mono text-base sm:gap-2 sm:text-lg">
-						<input
-							id="month-input"
-							bind:this={monthInputElement}
-							type="text"
-							inputmode="numeric"
-							pattern="[0-9]*"
-							maxlength={2}
-							placeholder="MM"
-							value={monthInput}
-							oninput={handleMonthInput}
-							onkeydown={handleMonthKeydown}
-							onpaste={handlePaste}
-							class="w-11 rounded-lg bg-transparent py-1 text-center text-neutral-100 placeholder-neutral-500 transition-colors focus:bg-neutral-800/80 focus:outline-none sm:w-12"
-							aria-label="Two digit birth month"
-						/>
-						<span class="text-neutral-500 select-none">/</span>
-						<input
-							bind:this={dayInputElement}
-							type="text"
-							inputmode="numeric"
-							pattern="[0-9]*"
-							maxlength={2}
-							placeholder="DD"
-							value={dayInput}
-							oninput={handleDayInput}
-							onkeydown={handleDayKeydown}
-							onpaste={handlePaste}
-							class="w-11 rounded-lg bg-transparent py-1 text-center text-neutral-100 placeholder-neutral-500 transition-colors focus:bg-neutral-800/80 focus:outline-none sm:w-12"
-							aria-label="Two digit birth day"
-						/>
-						<span class="text-neutral-500 select-none">/</span>
-						<input
-							bind:this={yearInputElement}
-							type="text"
-							inputmode="numeric"
-							pattern="[0-9]*"
-							maxlength={4}
-							placeholder="YYYY"
-							value={yearInput}
-							oninput={handleYearInput}
-							onkeydown={handleYearKeydown}
-							onpaste={handlePaste}
-							class="w-16 rounded-lg bg-transparent py-1 text-center text-neutral-100 placeholder-neutral-500 transition-colors focus:bg-neutral-800/80 focus:outline-none sm:w-20"
-							aria-label="Four digit birth year"
-						/>
+						{#if dateOrder === 'MDY'}
+							{@render monthInputSnippet()}
+							<span class="text-neutral-500 select-none">/</span>
+							{@render dayInputSnippet()}
+							<span class="text-neutral-500 select-none">/</span>
+							{@render yearInputSnippet()}
+						{:else if dateOrder === 'YMD'}
+							{@render yearInputSnippet()}
+							<span class="text-neutral-500 select-none">/</span>
+							{@render monthInputSnippet()}
+							<span class="text-neutral-500 select-none">/</span>
+							{@render dayInputSnippet()}
+						{:else}
+							{@render dayInputSnippet()}
+							<span class="text-neutral-500 select-none">/</span>
+							{@render monthInputSnippet()}
+							<span class="text-neutral-500 select-none">/</span>
+							{@render yearInputSnippet()}
+						{/if}
 					</div>
 
 					<button
@@ -355,6 +479,8 @@
 					<div class="absolute top-full right-0 left-0 z-40 mt-2 hidden md:block">
 						<CustomCalendar
 							{selectedDate}
+							initialMonth={Number(monthInput) || undefined}
+							initialYear={Number(yearInput) || undefined}
 							onselect={handleCalendarSelect}
 							onclose={closeCalendar}
 						/>
@@ -411,6 +537,8 @@
 
 			<CustomCalendar
 				{selectedDate}
+				initialMonth={Number(monthInput) || undefined}
+				initialYear={Number(yearInput) || undefined}
 				isMobileModal={true}
 				onselect={handleCalendarSelect}
 				onclose={closeCalendar}

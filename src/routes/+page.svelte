@@ -45,11 +45,16 @@
 		setTimeout(resetScroll, 500);
 
 		if (window.visualViewport) {
-			const handleViewportResize = (): void => {
+			const viewport = window.visualViewport;
+			const handleViewportChange = (): void => {
 				resetScroll();
-				window.visualViewport?.removeEventListener('resize', handleViewportResize);
 			};
-			window.visualViewport.addEventListener('resize', handleViewportResize, { once: true });
+			viewport.addEventListener('resize', handleViewportChange);
+			viewport.addEventListener('scroll', handleViewportChange);
+			setTimeout(() => {
+				viewport.removeEventListener('resize', handleViewportChange);
+				viewport.removeEventListener('scroll', handleViewportChange);
+			}, 600);
 		}
 	}
 

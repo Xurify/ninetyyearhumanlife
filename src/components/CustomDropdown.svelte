@@ -1,6 +1,6 @@
 <script lang="ts">
 	interface Props {
-		value: number;
+		value?: number;
 		options?: number[];
 		placeholder?: string;
 		maxHeight?: string;
@@ -8,7 +8,7 @@
 	}
 
 	let {
-		value = $bindable(),
+		value = $bindable(0),
 		options = [],
 		placeholder = 'Select...',
 		maxHeight = '200px',
@@ -16,7 +16,7 @@
 	}: Props = $props();
 
 	let isOpen = $state(false);
-	let scrollContainer = $state<HTMLDivElement>();
+	let scrollContainer = $state<HTMLDivElement | null>(null);
 
 	let selectedOption = $derived(options.find((option) => option === value) || value);
 
@@ -51,8 +51,8 @@
 	}
 
 	function handleClickOutside(event: MouseEvent): void {
-		const target = event.target as Element;
-		if (!target.closest('.custom-dropdown')) {
+		const target = event.target;
+		if (target instanceof Element && !target.closest('.custom-dropdown')) {
 			isOpen = false;
 		}
 	}

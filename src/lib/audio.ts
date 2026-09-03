@@ -1,14 +1,17 @@
 import { onMount } from 'svelte';
 
-let audioContext: AudioContext;
-let audioBuffer: AudioBuffer;
+let audioContext: AudioContext | null = null;
+let audioBuffer: AudioBuffer | null = null;
 let lastSoundTime = 0;
 
 export async function initAudio(soundPath: string): Promise<boolean> {
 	try {
-		if (!soundPath) return false;
+		if (!soundPath || typeof window === 'undefined') return false;
 
-		audioContext = new (window.AudioContext || window.webkitAudioContext)();
+		const AudioContextConstructor = window.AudioContext || window.webkitAudioContext;
+		if (!AudioContextConstructor) return false;
+
+		audioContext = new AudioContextConstructor();
 
 		const response = await fetch(soundPath);
 		const arrayBuffer = await response.arrayBuffer();

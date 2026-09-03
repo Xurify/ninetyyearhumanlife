@@ -1,12 +1,21 @@
 <script lang="ts">
 	interface Props {
 		selectedDate?: Date | null;
+		initialMonth?: number;
+		initialYear?: number;
 		isMobileModal?: boolean;
 		onselect?: (date: Date) => void;
 		onclose?: () => void;
 	}
 
-	let { selectedDate = null, isMobileModal = false, onselect, onclose }: Props = $props();
+	let {
+		selectedDate = null,
+		initialMonth,
+		initialYear,
+		isMobileModal = false,
+		onselect,
+		onclose
+	}: Props = $props();
 
 	const today = new Date();
 	const currentYear = today.getFullYear();
@@ -16,12 +25,19 @@
 	let activeView: 'days' | 'months' | 'years' = $state('days');
 
 	let viewingYear = $state(currentYear - 25);
-	let viewingMonth = $state(0);
+	let viewingMonth = $state(today.getMonth());
 
 	$effect(() => {
 		if (selectedDate) {
 			viewingYear = selectedDate.getFullYear();
 			viewingMonth = selectedDate.getMonth();
+		} else {
+			if (initialYear && initialYear >= currentYear - 110 && initialYear <= currentYear) {
+				viewingYear = initialYear;
+			}
+			if (typeof initialMonth === 'number' && initialMonth >= 1 && initialMonth <= 12) {
+				viewingMonth = initialMonth - 1;
+			}
 		}
 	});
 
@@ -106,6 +122,9 @@
 		if (isFutureDate(day)) return;
 		const date = new Date(viewingYear, viewingMonth, day);
 		onselect?.(date);
+		if (isMobileModal) {
+			onclose?.();
+		}
 	}
 
 	function handleMonthSelect(monthIndex: number): void {
@@ -114,6 +133,12 @@
 		}
 		viewingMonth = monthIndex;
 		activeView = 'days';
+
+		const preferredDay = selectedDate ? selectedDate.getDate() : 1;
+		const maxDaysInNewMonth = new Date(viewingYear, monthIndex + 1, 0).getDate();
+		const validDay = Math.min(preferredDay, maxDaysInNewMonth);
+		const newDate = new Date(viewingYear, monthIndex, validDay);
+		onselect?.(newDate);
 	}
 
 	function handleYearSelect(year: number): void {
@@ -122,6 +147,12 @@
 			viewingMonth = currentMonth;
 		}
 		activeView = 'months';
+
+		const preferredDay = selectedDate ? selectedDate.getDate() : 1;
+		const maxDaysInMonth = new Date(year, viewingMonth + 1, 0).getDate();
+		const validDay = Math.min(preferredDay, maxDaysInMonth);
+		const newDate = new Date(year, viewingMonth, validDay);
+		onselect?.(newDate);
 	}
 
 	function previousMonth(): void {
@@ -130,6 +161,11 @@
 			viewingYear -= 1;
 		} else {
 			viewingMonth -= 1;
+		}
+		if (selectedDate) {
+			const maxDays = new Date(viewingYear, viewingMonth + 1, 0).getDate();
+			const validDay = Math.min(selectedDate.getDate(), maxDays);
+			onselect?.(new Date(viewingYear, viewingMonth, validDay));
 		}
 	}
 
@@ -145,6 +181,11 @@
 			viewingYear += 1;
 		} else {
 			viewingMonth += 1;
+		}
+		if (selectedDate) {
+			const maxDays = new Date(viewingYear, viewingMonth + 1, 0).getDate();
+			const validDay = Math.min(selectedDate.getDate(), maxDays);
+			onselect?.(new Date(viewingYear, viewingMonth, validDay));
 		}
 	}
 

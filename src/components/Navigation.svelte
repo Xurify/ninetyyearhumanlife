@@ -1,6 +1,6 @@
 <script lang="ts">
 	interface Props {
-		onback?: () => void;
+		onback?: () => void | Promise<void>;
 	}
 
 	let { onback }: Props = $props();

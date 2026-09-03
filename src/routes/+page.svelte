@@ -1,7 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/stores';
-	import { goto, afterNavigate } from '$app/navigation';
-	import { onMount } from 'svelte';
+	import { tick, onMount } from 'svelte';
 
 	import { calculateLifeData, type LifeData } from '$lib/weekCalculations';
 
@@ -15,6 +13,7 @@
 	let lifeData: LifeData | null = $state(null);
 	let selectedDate: Date | null = $state(null);
 	let stepContainer: HTMLElement | null = $state(null);
+	let topAnchor: HTMLElement | null = $state(null);
 
 	function forceScrollToTop(): void {
 		if (typeof window === 'undefined') return;
@@ -31,25 +30,36 @@
 			if (document.body) {
 				document.body.scrollTop = 0;
 			}
-			if (stepContainer) {
-				stepContainer.scrollIntoView({ block: 'start', inline: 'nearest' });
+			if (document.scrollingElement) {
+				document.scrollingElement.scrollTop = 0;
 			}
+			topAnchor?.scrollIntoView(true);
 		};
 
 		resetScroll();
 		requestAnimationFrame(resetScroll);
 		setTimeout(resetScroll, 50);
-		setTimeout(resetScroll, 150);
-		setTimeout(resetScroll, 300);
+		setTimeout(resetScroll, 100);
+		setTimeout(resetScroll, 200);
+		setTimeout(resetScroll, 350);
 		setTimeout(resetScroll, 500);
+
+		if (window.visualViewport) {
+			const handleViewportResize = (): void => {
+				resetScroll();
+				window.visualViewport?.removeEventListener('resize', handleViewportResize);
+			};
+			window.visualViewport.addEventListener('resize', handleViewportResize, { once: true });
+		}
 	}
 
-	afterNavigate(() => {
-		forceScrollToTop();
-	});
+	onMount(() => {
+		if ('scrollRestoration' in history) {
+			history.scrollRestoration = 'manual';
+		}
 
-	$effect(() => {
-		const dateParam = $page.url.searchParams.get('birth_date');
+		const searchParams = new URLSearchParams(window.location.search);
+		const dateParam = searchParams.get('birth_date');
 		if (dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam)) {
 			const [yearString, monthString, dayString] = dateParam.split('-');
 			const parsedDate = new Date(Number(yearString), Number(monthString) - 1, Number(dayString));
@@ -57,28 +67,8 @@
 				selectedDate = parsedDate;
 				lifeData = calculateLifeData(parsedDate);
 				currentStep = 2;
-			} else {
-				selectedDate = null;
-				currentStep = 1;
+				forceScrollToTop();
 			}
-		} else {
-			selectedDate = null;
-			currentStep = 1;
-		}
-	});
-
-	$effect(() => {
-		if (currentStep === 2 && stepContainer) {
-			forceScrollToTop();
-		}
-	});
-
-	onMount(() => {
-		if (typeof window !== 'undefined' && 'scrollRestoration' in history) {
-			history.scrollRestoration = 'manual';
-		}
-		if (currentStep === 2) {
-			forceScrollToTop();
 		}
 	});
 
@@ -89,8 +79,22 @@
 	async function handleBirthDateSubmit(submittedDate?: Date): Promise<void> {
 		const targetDate = submittedDate || selectedDate;
 		if (targetDate) {
+			if (document.activeElement instanceof HTMLElement) {
+				document.activeElement.blur();
+			}
+
+			window.scrollTo(0, 0);
+			if (document.documentElement) {
+				document.documentElement.scrollTop = 0;
+			}
+			if (document.body) {
+				document.body.scrollTop = 0;
+			}
+
 			selectedDate = targetDate;
 			lifeData = calculateLifeData(targetDate);
+			currentStep = 2;
+
 			const dateParam = [
 				targetDate.getFullYear(),
 				String(targetDate.getMonth() + 1).padStart(2, '0'),
@@ -99,24 +103,61 @@
 			const url = new URL(window.location.href);
 			url.searchParams.set('birth_date', dateParam);
 
-			currentStep = 2;
-			forceScrollToTop();
-			await goto(url.toString(), { replaceState: true, noScroll: true });
+			window.history.replaceState(null, '', url.toString());
+
+			await tick();
 			forceScrollToTop();
 		}
 	}
 
 	async function handleBack(): Promise<void> {
+		if (document.activeElement instanceof HTMLElement) {
+			document.activeElement.blur();
+		}
+
+		window.scrollTo(0, 0);
+		if (document.documentElement) {
+			document.documentElement.scrollTop = 0;
+		}
+		if (document.body) {
+			document.body.scrollTop = 0;
+		}
+
 		currentStep = 1;
 		lifeData = null;
 		selectedDate = null;
+
+		window.history.replaceState(null, '', '/');
+
+		await tick();
 		forceScrollToTop();
-		await goto('/', { replaceState: true, noScroll: true });
+	}
+
+	function handlePopState(): void {
+		const searchParams = new URLSearchParams(window.location.search);
+		const dateParam = searchParams.get('birth_date');
+		if (dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam)) {
+			const [yearString, monthString, dayString] = dateParam.split('-');
+			const parsedDate = new Date(Number(yearString), Number(monthString) - 1, Number(dayString));
+			if (!isNaN(parsedDate.getTime())) {
+				selectedDate = parsedDate;
+				lifeData = calculateLifeData(parsedDate);
+				currentStep = 2;
+				forceScrollToTop();
+				return;
+			}
+		}
+
+		selectedDate = null;
+		lifeData = null;
+		currentStep = 1;
 		forceScrollToTop();
 	}
 </script>
 
-<svelte:window onpopstate={forceScrollToTop} />
+<svelte:window onpopstate={handlePopState} />
+
+<div id="top" bind:this={topAnchor} class="pointer-events-none h-0 w-0" aria-hidden="true"></div>
 
 {#if currentStep === 1}
 	<BirthDateInput bind:selectedDate onselect={handleDateSelect} onsubmit={handleBirthDateSubmit} />
@@ -128,5 +169,5 @@
 			<WeekStats {lifeData} />
 		</div>
 	</div>
-	<MusicPlayer />
+	<!--<MusicPlayer />-->
 {/if}

@@ -250,7 +250,7 @@
 	});
 </script>
 
-<div class="flex min-h-screen flex-col items-center justify-center px-4 py-8">
+<div class="flex min-h-dvh flex-col items-center justify-center px-4 py-8">
 	<div class="w-full max-w-md space-y-8 text-center">
 		<div class="space-y-4">
 			<div class="flex justify-center">

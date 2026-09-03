@@ -58,7 +58,7 @@
 	}
 
 	$effect(() => {
-		if (typeof window !== 'undefined' && isOpen) {
+		if (isOpen) {
 			document.addEventListener('click', handleClickOutside);
 			return () => {
 				document.removeEventListener('click', handleClickOutside);

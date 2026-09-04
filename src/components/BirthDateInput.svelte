@@ -287,7 +287,7 @@
 		showCalendar = false;
 	}
 
-	async function handleSubmit(): Promise<void> {
+	function handleSubmit(): void {
 		if (validateDate(monthInput, dayInput, yearInput)) {
 			const candidateDate =
 				selectedDate || new Date(Number(yearInput), Number(monthInput) - 1, Number(dayInput));
@@ -295,12 +295,8 @@
 			if (document.activeElement instanceof HTMLElement) {
 				document.activeElement.blur();
 			}
-			window.scrollTo(0, 0);
-			if (typeof window !== 'undefined' && window.innerWidth < 768) {
-				await new Promise((resolve) => setTimeout(resolve, 150));
-			}
-			window.scrollTo(0, 0);
-			await onsubmit?.(candidateDate);
+			window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+			onsubmit?.(candidateDate);
 		}
 	}
 
@@ -397,28 +393,30 @@
 	/>
 {/snippet}
 
-<div class="flex min-h-dvh flex-col items-center justify-center px-4 py-8">
-	<div class="w-full max-w-md space-y-8 text-center">
-		<div class="space-y-4">
+<div
+	class="fixed inset-0 flex flex-col items-center justify-center overflow-y-auto overscroll-none px-4 py-6 sm:py-8"
+>
+	<div class="w-full max-w-md space-y-6 text-center sm:space-y-8">
+		<div class="space-y-3 sm:space-y-4">
 			<div class="flex justify-center">
 				<img
 					src="/icon.svg"
 					alt="App Icon"
-					class="h-20 w-20"
+					class="h-16 w-16 sm:h-20 sm:w-20"
 					width={150}
 					height={150}
 					loading="eager"
 				/>
 			</div>
-			<h1 class="text-3xl font-light tracking-wide text-neutral-100 sm:text-4xl">
+			<h1 class="text-2xl font-light tracking-wide text-neutral-100 sm:text-4xl">
 				Ninety Year Human Life
 			</h1>
-			<p class="text-base leading-relaxed font-light text-neutral-400 sm:text-lg">
+			<p class="text-sm leading-relaxed font-light text-neutral-400 sm:text-lg">
 				A simple visualization to help you reflect on the time you have
 			</p>
 		</div>
 
-		<div class="space-y-6 pt-4 sm:pt-6">
+		<div class="space-y-5 pt-2 sm:space-y-6 sm:pt-6">
 			<div class="calendar-picker-container relative space-y-2">
 				<label
 					for={dateOrder === 'MDY'
